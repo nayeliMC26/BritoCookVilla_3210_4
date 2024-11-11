@@ -10,6 +10,10 @@ class SceneManager {
     // Function to update the scene 
     update(deltaTime) {
     }
+
+    add(object){
+        this.scene.add(object);
+    }
 }
 
 export default SceneManager;

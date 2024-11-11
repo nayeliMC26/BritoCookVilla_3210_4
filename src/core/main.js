@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import SceneManager from '/src/core/SceneManager.js';
 import Renderer from '/src/core/Renderer.js';
+import Sun from '/src/entities/Sun.js';
 /* Main class which handles animating the scene */
 class Main {
     constructor() {
@@ -15,16 +16,13 @@ class Main {
         this.animate();
 
         // Basic object to add to the scene to ensure everything is working correctly
-        this.sphereGeo = new THREE.SphereGeometry(5, 32, 32);
-        this.sphereMat = new THREE.MeshBasicMaterial({color: 0x00ff00});
-        this.sphere = new THREE.Mesh(this.sphereGeo, this.sphereMat);
-        this.sceneManager.scene.add(this.sphere);
+        this.sun = new Sun(this.sceneManager);
     }
 
     // Animation loop 
     animate() {
         requestAnimationFrame(this.animate);
-        var deltaTime = this.clock.getDelta();  
+        var deltaTime = this.clock.getDelta();
         this.sceneManager.update(deltaTime);
         this.renderer.render(this.sceneManager.scene, this.sceneManager.camera);
     }
