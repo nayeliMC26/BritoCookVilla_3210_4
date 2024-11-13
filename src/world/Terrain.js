@@ -13,16 +13,16 @@ class Terrain {
         this.block = new Block(this.blockSize);
 
         // Create instanced meshes for each block type
-        this.stoneMesh = this.block.getInstancedMesh(
-            "stone",
-            this.resolution ** 2 * this.maxHeight
-        );
         this.dirtMesh = this.block.getInstancedMesh(
             "dirt",
             this.resolution ** 2 * this.maxHeight
         );
         this.grassMesh = this.block.getInstancedMesh(
             "grass",
+            this.resolution ** 2 * this.maxHeight
+        );
+        this.stoneMesh = this.block.getInstancedMesh(
+            "stone",
             this.resolution ** 2 * this.maxHeight
         );
 
