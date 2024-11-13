@@ -11,7 +11,7 @@ class SceneManager {
         this.cameraModule = new Camera();
         this.camera = this.cameraModule.getCamera();
         // Create the terrain
-        this.terrain = new Terrain({ size: 2000, blockSize: 10, maxHeight: 10, resolution: 50, color: 0x368933 });
+        this.terrain = new Terrain({ size: 3000, blockSize: 10, maxHeight: 10, resolution: 100, color: 0x368933 });
         this.terrain.addToScene(this.scene);
         // Create the lighting 
         this.lighting = new Lighting();
