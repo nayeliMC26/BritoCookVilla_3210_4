@@ -1,41 +1,45 @@
-import * as THREE from 'three';
+import * as THREE from "three";
+import Materials from "./Materials";
 
 class Block {
-    BLOCK_TYPES = {
-        GRASS: 'grass',
-        DIRT: 'dirt',
-        STONE: 'stone',
-        WATER: 'water',
-    };
-
-    constructor({ positionX, positionY, positionZ, blockType, blockSize }) {
-        this.positionX = positionX;                          
-        this.positionY = positionY;                          
-        this.positionZ = positionZ;                          
-        this.blockType = blockType;
-        this.blockSize = blockSize;                          
-        this.material = this.getMaterial();                  
-        this.geometry = new THREE.BoxGeometry(this.blockSize, this.blockSize, this.blockSize); 
-        this.mesh = new THREE.Mesh(this.geometry, this.material); 
-        this.mesh.position.set(this.positionX, this.positionY, this.positionZ); 
-        this.mesh.castShadow = true;                         
-        this.mesh.receiveShadow = true;                      
+    constructor(blockSize) {
+        this.blockSize = blockSize;
+        this.materials = new Materials();
+        this.blockGeometry = new THREE.BoxGeometry(
+            this.blockSize,
+            this.blockSize,
+            this.blockSize
+        );
     }
 
     /**
-     * A function to get the material of a certain block type 
-     * @returns {THREE.MeshPhongMaterial}
+     * Get instanced mesh for a block type
      */
-    getMaterial() {
-        switch (this.blockType) {
-            case this.BLOCK_TYPES.GRASS:
-                return new THREE.MeshPhongMaterial({ color: 0x368933 }); 
-            case this.BLOCK_TYPES.DIRT:
-                return new THREE.MeshPhongMaterial({ color: 0x997245 }); 
-            case this.BLOCK_TYPES.STONE:
-                return new THREE.MeshPhongMaterial({ color: 0xb9b9b9 }); 
+    getInstancedMesh(type, instanceCount) {
+        const material = this.getMaterial(type);
+        return new THREE.InstancedMesh(this.blockGeometry, material, instanceCount);
+    }
+
+    /**
+     * Get material for block type
+     */
+    getMaterial(type) {
+        switch (type) {
+            case "grass":
+                return Array(6).fill(new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }));
+            case "dirt":
+                return [
+                    new THREE.MeshStandardMaterial({ map: this.materials.sideTexture }), // Right
+                    new THREE.MeshStandardMaterial({ map: this.materials.sideTexture }), // Left
+                    new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }), // Top
+                    new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }),  // Bottom
+                    new THREE.MeshStandardMaterial({ map: this.materials.sideTexture }), // Front
+                    new THREE.MeshStandardMaterial({ map: this.materials.sideTexture })  // Back
+                ];
+            case "stone":
+                return Array(6).fill(new THREE.MeshStandardMaterial({ map: this.materials.iceTexture }));
             default:
-                return new THREE.MeshPhongMaterial({ color: 0x368933 }); 
+                return Array(6).fill(new THREE.MeshStandardMaterial({ color: 0xffffff }));
         }
     }
 }
