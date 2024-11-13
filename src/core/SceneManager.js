@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import Camera from '/src/core/Camera.js'
 import Terrain from '/src/world/Terrain.js';
 import Lighting from '/src/world/Lighting.js'
+import Player from '../entities/Player';
+
 /* Class to handle creating the scene and updating it */
 class SceneManager {
     constructor() {
@@ -16,7 +18,9 @@ class SceneManager {
         // Create the lighting 
         this.lighting = new Lighting();
         this.lighting.addToScene(this.scene);
-
+      
+        // Create the player 
+        this.player = new Player(this.scene, this.camera);
     }
     // Function to update the scene 
     update(deltaTime) {
