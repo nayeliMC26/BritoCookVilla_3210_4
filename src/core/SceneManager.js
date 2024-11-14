@@ -8,29 +8,21 @@ class SceneManager {
         this.cameraModule = new Camera();
         this.camera = this.cameraModule.getCamera();
 
+        this.ambientLight = new THREE.AmbientLight(0x404040, 0.5); // soft white light
+        this.scene.add(this.ambientLight);
+
         const geometry = new THREE.PlaneGeometry(500, 500);
-        const material = new THREE.MeshBasicMaterial({ color: 0x808080, side: THREE.DoubleSide });
+        const material = new THREE.MeshStandardMaterial({ color: 0x808080, side: THREE.DoubleSide });
         const plane = new THREE.Mesh(geometry, material);
+        plane.receiveShadow = true;
         plane.rotateX(Math.PI / 2)
         this.scene.add(plane);
-        this.sun = new Sun(this.scene);
-        // Day Color -> 0xB9EBFF
-        // Night Color -> 0x001A38
 
-        this.geometry = new THREE.SphereGeometry(500, 32, 32);
-        this.material = new THREE.MeshBasicMaterial({ color: 0xB9EBFF, side: THREE.DoubleSide });
-        this.mesh = new THREE.Mesh(this.geometry, this.material);
-
-        this.scene.add(this.mesh);
-        const gridHelper = new THREE.GridHelper(100, 10);
-        this.scene.add(gridHelper);
-
+        this.sun = new Sun(this.scene, this.ambientLight);
     }
     // Function to update the scene 
     update(deltaTime) {
-        // console.log(this.sun.mesh.position);
-        this.sun.rotate(deltaTime);
-        // this.sun.updateColor(deltaTime);
+        this.sun.animate(deltaTime);
     }
 
     add(object) {
