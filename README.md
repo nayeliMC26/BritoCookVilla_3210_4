@@ -1,4 +1,4 @@
-# CSC3210 Project 3 - War Game
+# CSC3210 Project 4 -  Terrain-ia
 
 Wander Brito Martinez, Samantha Cook, Nayeli Villa
 
