@@ -101,7 +101,7 @@ export default class Sun {
         this.percentage = (angle - this.sunRise) / this.sunSet;
         // Move the sun as long as its day time and a little more
         if (this.percentage <= 1.5) {
-            // this.mesh.applyMatrix4(rotationMatrix);
+            this.mesh.applyMatrix4(rotationMatrix);
             this.currentA = angle;
         }
 
