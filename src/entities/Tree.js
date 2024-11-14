@@ -9,7 +9,7 @@ class Tree {
     this.iterations = iterations;
     this.angle = angle;
     this.axiom = "F";
-    this.rules = { "F": "FF[F][-F]" }; // Simple L-System rules for branching
+    this.rules = { "F": "FFF[F][-F][-F]" }; // Simple L-System rules for branching
     this.block = new Block(this.blockSize);
 
     // Create instanced meshes for the tree blocks
@@ -66,14 +66,14 @@ class Tree {
         this.trunkMesh.setMatrixAt(indexTrunk++, matrix);
 
         // Randomly decide to place leaves at the ends of branches
-        if (Math.random() < 0.3) { // Adjust probability as needed
-          matrix.setPosition(
-            position.x + this.position.x,
-            position.y + this.position.y,
-            position.z + this.position.z
-          );
-          this.leafMesh.setMatrixAt(indexLeaf++, matrix);
-        }
+        // if (Math.random() < 0.3) { // Adjust probability as needed
+        //   matrix.setPosition(
+        //     position.x + this.position.x,
+        //     position.y + this.position.y,
+        //     position.z + this.position.z
+        //   );
+        //   this.leafMesh.setMatrixAt(indexLeaf++, matrix);
+        // }
       } else if (char === "+") {
         // Turn right
         direction.applyAxisAngle(new THREE.Vector3(0, 0, 1), this.angle);
@@ -82,10 +82,12 @@ class Tree {
         direction.applyAxisAngle(new THREE.Vector3(0, 0, 1), -this.angle);
       } else if (char === "[") {
         // Save the current position and direction
+        direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), this.angle);
         positionStack.push(position.clone());
         directionStack.push(direction.clone());
       } else if (char === "]") {
         // Restore the saved position and direction
+        direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), -this.angle);
         position = positionStack.pop();
         direction = directionStack.pop();
       }

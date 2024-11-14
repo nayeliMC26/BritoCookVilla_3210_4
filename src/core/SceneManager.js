@@ -17,7 +17,7 @@ class SceneManager {
             size: 3000,
             blockSize: 10,
             maxHeight: 10,
-            resolution: 100,
+            resolution: 50,
             color: 0x368933,
         });
         this.terrain.addToScene(this.scene);
