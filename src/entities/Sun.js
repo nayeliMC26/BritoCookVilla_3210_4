@@ -29,7 +29,7 @@ export default class Sun {
         // Positionning the sun
         this.mesh.position.set(100, 0, 0);
         // Rotating it so that it starts below the horizon
-        this.sunRise = Math.asin(-this.radius / 50); // Starting angle
+        this.sunRise = Math.asin(-this.radius / (this.mesh.position.x - 10)); // Starting angle
         this.currentA = this.sunRise;
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(this.sunRise);
         this.mesh.applyMatrix4(rotationMatrix);
@@ -101,7 +101,7 @@ export default class Sun {
         this.percentage = (angle - this.sunRise) / this.sunSet;
         // Move the sun as long as its day time and a little more
         if (this.percentage <= 1.5) {
-            this.mesh.applyMatrix4(rotationMatrix);
+            // this.mesh.applyMatrix4(rotationMatrix);
             this.currentA = angle;
         }
 
