@@ -10,6 +10,8 @@ export default class Sun {
         this.radius, this.geometry, this.material, this.mesh, this.color;
         // Angles used for rotation
         this.sunRise, this.sunSet, this.currentA;
+        // How long the night is
+        this.time;
         // Intesity of ambient light
         this.intesity;
         // Percentage of day time
@@ -29,12 +31,14 @@ export default class Sun {
         // Positionning the sun
         this.mesh.position.set(100, 0, 0);
         // Rotating it so that it starts below the horizon
-        this.sunRise = Math.asin(-this.radius / 50); // Starting angle
+        this.sunRise = Math.asin(-this.radius / (this.mesh.position.x - 10)); // Starting angle
         this.currentA = this.sunRise;
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(this.sunRise);
         this.mesh.applyMatrix4(rotationMatrix);
-        // Total angled traveled form the begining 
+        // Total angles traveled form the beginning 
         this.sunSet = Math.atan2(this.mesh.position.y, -this.mesh.position.x) - this.sunRise + (2 * Math.PI);
+        // Toatal angles traveled divided by 15 times 10
+        this.time = (this.sunSet / 0.261799)
 
         // Max ambient light intesity
         this.intesity = this.ambientLight.intensity;
@@ -46,6 +50,7 @@ export default class Sun {
 
         // Adding sun to the scene
         this.scene.add(this.mesh);
+        console.log(this.ambientLight.intensity)
     }
 
     #updateColor() {
@@ -88,6 +93,7 @@ export default class Sun {
                 this.ambientLight.intensity = this.intesity - ((this.intesity / 2) * ((this.percentage - .95) / .05));
                 break;
             case (this.percentage > 1): // Sun light is invisible after day time
+                console.log(this.ambientLight.intensity);
                 this.directionalLight.visible = false;
                 break;
         }
@@ -96,7 +102,7 @@ export default class Sun {
     animate(time) {
         if (isNaN(time)) return;
         // the angle that were going to rotate the sun by
-        var angle = this.sunRise + ((Math.PI / 120) * ((time) % 240));
+        var angle = this.sunRise + ((this.sunSet / this.time) * (time % (this.time * 2)));
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(angle - this.currentA);
         this.percentage = (angle - this.sunRise) / this.sunSet;
         // Move the sun as long as its day time and a little more
