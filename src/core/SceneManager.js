@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import Camera from '/src/core/Camera.js'
 import Sun from '../entities/Sun';
+import Moon from '../entities/Moon';
 /* Class to handle creating the scene and updating it */
 class SceneManager {
     constructor() {
@@ -19,10 +20,15 @@ class SceneManager {
         this.scene.add(plane);
 
         this.sun = new Sun(this.scene, this.ambientLight);
+        this.moon = new Moon(this.scene, this.ambientLight);
+
+        const gridHelper = new THREE.GridHelper(150, 15);
+        this.scene.add(gridHelper);
     }
     // Function to update the scene 
     update(deltaTime) {
         this.sun.animate(deltaTime);
+        this.moon.animate(deltaTime);
     }
 
     add(object) {
