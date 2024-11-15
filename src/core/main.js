@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import SceneManager from '/src/core/SceneManager.js';
 import Renderer from '/src/core/Renderer.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 /* Main class which handles animating the scene */
 class Main {
     constructor() {
@@ -14,18 +15,17 @@ class Main {
         this.animate = this.animate.bind(this);
         this.animate();
 
+        this.controls = new OrbitControls(this.sceneManager.camera, this.renderer.renderer.domElement);
         // Basic object to add to the scene to ensure everything is working correctly
-        this.sphereGeo = new THREE.SphereGeometry(5, 32, 32);
-        this.sphereMat = new THREE.MeshBasicMaterial({color: 0x00ff00});
-        this.sphere = new THREE.Mesh(this.sphereGeo, this.sphereMat);
-        this.sceneManager.scene.add(this.sphere);
+
     }
 
     // Animation loop 
-    animate() {
+    animate(time) {
+        // this.controls.update();
         requestAnimationFrame(this.animate);
-        var deltaTime = this.clock.getDelta();  
-        this.sceneManager.update(deltaTime);
+        var deltaTime = this.clock.getDelta();
+        this.sceneManager.update(time / 1000);
         this.renderer.render(this.sceneManager.scene, this.sceneManager.camera);
     }
 }
