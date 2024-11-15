@@ -30,7 +30,7 @@ class Main {
         this.stats.begin();
         requestAnimationFrame(this.animate);
         var deltaTime = this.clock.getDelta();
-        this.sceneManager.update(time / 1000);
+        this.sceneManager.update(deltaTime);
         this.renderer.render(this.sceneManager.scene, this.sceneManager.camera);
         this.stats.end();
     }

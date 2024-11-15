@@ -12,8 +12,7 @@ class SceneManager {
         // Create new scene
         this.scene = new THREE.Scene();
         // Create new camera 
-        this.cameraModule = new Camera();
-        this.camera = this.cameraModule.getCamera();
+        this.camera = new Camera();
 
         this.ambientLight = new THREE.AmbientLight(0x404040, 0.5); // soft white light
         this.scene.add(this.ambientLight);
