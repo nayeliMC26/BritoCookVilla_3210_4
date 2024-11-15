@@ -38,7 +38,7 @@ export default class Sun {
         // Total angles traveled form the beginning 
         this.sunSet = Math.atan2(this.mesh.position.y, -this.mesh.position.x) - this.sunRise + (2 * Math.PI);
         // Toatal angles traveled divided by 15 times 10
-        this.time = (this.sunSet / 0.261799)
+        this.time = (this.sunSet / 0.261799) * 10
 
         // Max ambient light intesity
         this.intesity = this.ambientLight.intensity;
@@ -50,7 +50,6 @@ export default class Sun {
 
         // Adding sun to the scene
         this.scene.add(this.mesh);
-        console.log(this.ambientLight.intensity)
     }
 
     #updateColor() {

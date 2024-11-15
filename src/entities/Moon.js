@@ -38,7 +38,7 @@ export default class Moon {
         // Total angled traveled form the beginning 
         this.moonSet = Math.atan2(this.mesh.position.y, -this.mesh.position.x) - this.moonRise + (2 * Math.PI);
         // Toatal angles traveled divided by 15 times 10
-        this.time = (this.moonSet / 0.261799)
+        this.time = (this.moonSet / 0.261799) * 10
 
         // Max ambient light intesity
         this.intesity = this.ambientLight.intensity / 2;
@@ -51,7 +51,6 @@ export default class Moon {
 
         // Adding moon to the scene
         this.scene.add(this.mesh);
-        console.log(this.intesity);
     }
 
     #updateIntensity() {
