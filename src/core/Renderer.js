@@ -7,6 +7,7 @@ class Renderer {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor(0x272727);
         document.body.appendChild(this.renderer.domElement);
+        this.renderer.shadowMap.enabled = true;
 
         window.addEventListener('resize', this.onWindowResize.bind(this), false);
     }

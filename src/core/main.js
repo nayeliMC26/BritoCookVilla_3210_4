@@ -23,37 +23,13 @@ class Main {
         this.animate();
 
         this.controls = new OrbitControls(this.sceneManager.camera, this.renderer.renderer.domElement);
-        this.controls.update();
-
-        this.deltaTime = this.clock.getDelta;
-
-        window.addEventListener('keydown', (event) => this.keydown(event), false);
-
-    }
-
-    keydown(event) {
-        switch (event.key.toLowerCase()) {
-            case "a":
-                this.sceneManager.camera.position.x -= 15
-                break;
-            case "d":
-                this.sceneManager.camera.position.x += 15
-                break;
-            case "s":
-                this.sceneManager.camera.position.z += 15;
-                break;
-            case "w":
-                this.sceneManager.camera.position.z -= 15;
-                break;
-        }
     }
 
     // Animation loop 
-    animate() {
+    animate(time) {
         this.stats.begin();
         requestAnimationFrame(this.animate);
-        var deltaTime = this.clock.getDelta();  
-        this.sceneManager.update(deltaTime);
+        this.sceneManager.update(time / 1000);
         this.renderer.render(this.sceneManager.scene, this.sceneManager.camera);
         this.stats.end();
     }
