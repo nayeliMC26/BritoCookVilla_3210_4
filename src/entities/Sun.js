@@ -38,7 +38,7 @@ export default class Sun {
         // Total angles traveled form the beginning to end 
         this.sunSet = Math.atan2(this.mesh.position.y, -this.mesh.position.x) - this.sunRise + (2 * Math.PI);
         // How much a rotation should take for 15 degrees every 10 seconds
-        this.time = (this.sunSet / 0.261799) * 1
+        this.time = (this.sunSet / 0.261799) * 10
 
         // Max ambient light intesity
         this.intesity = this.ambientLight.intensity;

@@ -12,7 +12,6 @@ class SceneManager {
         this.scene = new THREE.Scene();
         // Create new camera 
         this.camera = new Camera();
-        // git commit -m "Fix: fixed the sun and moon glitching aswell as made the colors and shadows merge more smoothly during the transition from day to night"
 
         //  Ambient light to control the light color mixture
         this.worldAmbientLight = new THREE.AmbientLight(0xffffff, 0.5);

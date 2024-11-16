@@ -40,7 +40,7 @@ export default class Moon {
         this.currentA = this.moonSet;
         this.percentage = 1;
         // How much a rotation should take for 15 degrees every 10 seconds
-        this.time = (this.moonSet / 0.261799) * 1
+        this.time = (this.moonSet / 0.261799) * 10
 
         // Starting with the moon light as purple
         this.color = new THREE.Color(0.416, 0.051, 0.514);
