@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import Camera from '/src/core/Camera.js'
 import Sun from '../entities/Sun';
 import Moon from '../entities/Moon';
+import Sky from '../world/Sky';
 /* Class to handle creating the scene and updating it */
 class SceneManager {
     constructor() {
@@ -19,16 +20,21 @@ class SceneManager {
         plane.rotateX(Math.PI / 2)
         this.scene.add(plane);
 
+        // Day Color -> 0xB9EBFF
+        // Night Color -> 0x001A38
+
         this.sun = new Sun(this.scene, this.ambientLight);
         this.moon = new Moon(this.scene, this.ambientLight);
+        this.sky = new Sky(this.scene, this.sun.getDayLenght() * 2);
 
         const gridHelper = new THREE.GridHelper(150, 15);
         this.scene.add(gridHelper);
     }
     // Function to update the scene 
-    update(deltaTime) {
-        this.sun.animate(deltaTime);
-        this.moon.animate(deltaTime);
+    update(time) {
+        this.sun.animate(time);
+        this.moon.animate(time);
+        this.sky.update(time);
     }
 
     add(object) {

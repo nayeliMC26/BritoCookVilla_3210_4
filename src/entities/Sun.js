@@ -87,12 +87,10 @@ export default class Sun {
                 this.directionalLight.visible = true;
                 this.ambientLight.intensity = (this.intesity / 2) + ((this.intesity / 2) * (this.percentage / .05));
                 break;
-
             case (this.percentage > .95 && this.percentage <= 1): // Decreasing the light late
                 this.ambientLight.intensity = this.intesity - ((this.intesity / 2) * ((this.percentage - .95) / .05));
                 break;
             case (this.percentage > 1): // Sun light is invisible after day time
-                console.log(this.ambientLight.intensity);
                 this.directionalLight.visible = false;
                 break;
         }
@@ -112,5 +110,9 @@ export default class Sun {
 
         this.#updateColor();
         this.#updateIntensity();
+    }
+
+    getDayLenght() {
+        return this.time;
     }
 }
