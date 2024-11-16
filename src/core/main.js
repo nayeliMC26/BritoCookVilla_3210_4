@@ -26,11 +26,10 @@ class Main {
     }
 
     // Animation loop 
-    animate() {
+    animate(time) {
         this.stats.begin();
         requestAnimationFrame(this.animate);
-        var deltaTime = this.clock.getDelta();
-        this.sceneManager.update(deltaTime);
+        this.sceneManager.update(time / 1000);
         this.renderer.render(this.sceneManager.scene, this.sceneManager.camera);
         this.stats.end();
     }
