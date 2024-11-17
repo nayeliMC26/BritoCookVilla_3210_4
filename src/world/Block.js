@@ -13,11 +13,11 @@ class Block {
     }
 
     /**
-     * Get instanced mesh for a block type
+     * Get a regular mesh for a block type
      */
-    getInstancedMesh(type, instanceCount) {
+    getMesh(type) {
         const material = this.getMaterial(type);
-        return new THREE.InstancedMesh(this.blockGeometry, material, instanceCount);
+        return new THREE.Mesh(this.blockGeometry, material);
     }
 
     /**
@@ -38,6 +38,17 @@ class Block {
                 ];
             case "stone":
                 return Array(6).fill(new THREE.MeshStandardMaterial({ map: this.materials.iceTexture }));
+            case "spruce":
+                return [
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }), // Right
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }), // Left
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceTopTexture }), // Top
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceTopTexture }),  // Bottom
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }), // Front
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture })  // Back
+                ];
+            case "leaves":
+                return Array(6).fill(new THREE.MeshStandardMaterial({ map: this.materials.leavesTexture }));
             default:
                 return Array(6).fill(new THREE.MeshStandardMaterial({ color: 0xffffff }));
         }

@@ -12,23 +12,7 @@ class Terrain {
         this.perlin = new Perlin();
         this.block = new Block(this.blockSize);
 
-        // Create instanced meshes for each block type
-        this.dirtMesh = this.block.getInstancedMesh(
-            "dirt",
-            this.resolution ** 2 * this.maxHeight
-        );
-        this.grassMesh = this.block.getInstancedMesh(
-            "grass",
-            this.resolution ** 2 * this.maxHeight
-        );
-        this.stoneMesh = this.block.getInstancedMesh(
-            "stone",
-            this.resolution ** 2 * this.maxHeight
-        );
-
-        this.stoneMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-        this.dirtMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-        this.grassMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        this.mesh = new THREE.Group(); // Group to hold all the individual meshes
 
         this.initTerrain();
     }
@@ -38,9 +22,6 @@ class Terrain {
      */
     initTerrain() {
         const center = (this.resolution * this.blockSize) / 2;
-        let stoneIndex = 0;
-        let dirtIndex = 0;
-        let grassIndex = 0;
 
         for (let x = 0; x < this.resolution; x++) {
             for (let z = 0; z < this.resolution; z++) {
@@ -64,36 +45,24 @@ class Terrain {
                 );
 
                 // Create the base layer at y = 0
-                const matrix = new THREE.Matrix4();
-                matrix.setPosition(blockX, 0, blockZ);
-                this.stoneMesh.setMatrixAt(stoneIndex++, matrix);
+                this.createBlock("stone", blockX, 0, blockZ);
 
                 // Create additional layers based on height
                 for (let y = 1; y <= height; y++) {
-                    matrix.setPosition(blockX, y * this.blockSize, blockZ);
                     const blockType = this.getBlockType(y);
-
-                    if (blockType === "stone") {
-                        this.stoneMesh.setMatrixAt(stoneIndex++, matrix);
-                    } else if (blockType === "dirt") {
-                        this.dirtMesh.setMatrixAt(dirtIndex++, matrix);
-                    } else if (blockType === "grass") {
-                        this.grassMesh.setMatrixAt(grassIndex++, matrix);
-                    }
+                    this.createBlock(blockType, blockX, y * this.blockSize, blockZ);
                 }
             }
         }
+    }
 
-        // Update the instance matrices
-        this.stoneMesh.instanceMatrix.needsUpdate = true;
-        this.dirtMesh.instanceMatrix.needsUpdate = true;
-        this.grassMesh.instanceMatrix.needsUpdate = true;
-
-        // Create a group to hold all instanced meshes
-        this.mesh = new THREE.Group();
-        this.mesh.add(this.stoneMesh);
-        this.mesh.add(this.dirtMesh);
-        this.mesh.add(this.grassMesh);
+    /**
+     * Function to create and add a block to the terrain
+     */
+    createBlock(type, x, y, z) {
+        const blockMesh = this.block.getMesh(type); // Get a regular mesh
+        blockMesh.position.set(x, y, z);
+        this.mesh.add(blockMesh); // Add the mesh to the group
     }
 
     /**
