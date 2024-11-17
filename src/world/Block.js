@@ -27,7 +27,10 @@ class Block {
         };
 
         const materials = this.getMaterial(type, exposedSides);
-        return new THREE.Mesh(this.blockGeometry, materials);
+        const block = new THREE.Mesh(this.blockGeometry, materials);
+        block.castShadow = true;
+        block.receiveShadow = true;
+        return block;
     }
 
     /**
@@ -65,12 +68,12 @@ class Block {
                 break;
             case "spruce":
                 materials = [
-                    exposedSides.right ? new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Right
-                    exposedSides.left ? new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Left
-                    exposedSides.top ? new THREE.MeshStandardMaterial({ map: this.materials.spruceTopTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Top
-                    exposedSides.bottom ? new THREE.MeshStandardMaterial({ map: this.materials.spruceTopTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }),  // Bottom
-                    exposedSides.front ? new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Front
-                    exposedSides.back ? new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 })  // Back
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }),
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }),
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceTopTexture }),
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceTopTexture }),
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }),
+                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture })
                 ];
                 break;
             case "leaves":
