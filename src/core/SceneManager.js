@@ -1,5 +1,7 @@
-import * as THREE from "three";
-import Camera from "/src/core/Camera.js";
+import * as THREE from 'three';
+import Camera from '/src/core/Camera.js'
+import Sun from '../entities/Sun';
+import Moon from '../entities/Moon';
 import Terrain from "/src/world/Terrain.js";
 import Lighting from "/src/world/Lighting.js";
 import Tree from "../entities/Tree";
@@ -12,6 +14,7 @@ class SceneManager {
         // Create new camera
         this.cameraModule = new Camera();
         this.camera = this.cameraModule.getCamera();
+
         // Create the terrain
         this.terrain = new Terrain({
             size: 3000,
@@ -27,9 +30,18 @@ class SceneManager {
         // Create the lighting
         this.lighting = new Lighting();
         this.lighting.addToScene(this.scene);
+
+        this.sun = new Sun(this.scene, this.lighting.ambientLight);
+        this.moon = new Moon(this.scene, this.lighting.ambientLight);
     }
+  
     // Function to update the scene
-    update(deltaTime) {}
+    update(deltaTime){
+
+        // Update sun and moon positions
+        this.sun.animate(deltaTime);
+        this.moon.animate(deltaTime);
+    }
 }
 
 export default SceneManager;
