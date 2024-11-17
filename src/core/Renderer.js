@@ -3,7 +3,7 @@ import * as THREE from 'three';
 class Renderer {
     constructor() {
         // Create a renderer 
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setClearColor(0x272727);
         document.body.appendChild(this.renderer.domElement);
