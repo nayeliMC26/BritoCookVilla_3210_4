@@ -1,4 +1,3 @@
-// Tree.js
 import * as THREE from "three";
 import Block from "../world/Block";
 
@@ -12,12 +11,9 @@ class Tree {
     this.rules = { "F": "FFF[F][-F][-F]" }; // Simple L-System rules for branching
     this.block = new Block(this.blockSize);
 
-    // Create instanced meshes for the tree blocks
-    this.trunkMesh = this.block.getInstancedMesh("spruce", 100);
-    this.leafMesh = this.block.getInstancedMesh("leaves", 100);
-
-    this.trunkMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    this.leafMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    // Create groups to hold the trunk and leaf meshes
+    this.trunkGroup = new THREE.Group();
+    this.leafGroup = new THREE.Group();
 
     this.generateTree();
   }
@@ -43,10 +39,6 @@ class Tree {
   generateTree() {
     const positionStack = [];
     const directionStack = [];
-    const matrix = new THREE.Matrix4();
-
-    let indexTrunk = 0;
-    let indexLeaf = 0;
 
     let position = new THREE.Vector3(0, 0, 0); // Starting position
     let direction = new THREE.Vector3(0, 1, 0); // Initial direction (upwards)
@@ -58,22 +50,24 @@ class Tree {
       if (char === "F") {
         // Move forward, placing a block at the new position for the trunk
         position.add(direction.clone().multiplyScalar(this.blockSize));
-        matrix.setPosition(
+        const trunkMesh = this.block.getMesh("spruce");
+        trunkMesh.position.set(
           position.x + this.position.x,
           position.y + this.position.y,
           position.z + this.position.z
         );
-        this.trunkMesh.setMatrixAt(indexTrunk++, matrix);
+        this.trunkGroup.add(trunkMesh);
 
         // Randomly decide to place leaves at the ends of branches
-        // if (Math.random() < 0.3) { // Adjust probability as needed
-        //   matrix.setPosition(
-        //     position.x + this.position.x,
-        //     position.y + this.position.y,
-        //     position.z + this.position.z
-        //   );
-        //   this.leafMesh.setMatrixAt(indexLeaf++, matrix);
-        // }
+        if (Math.random() < 0.3) { // Adjust probability as needed
+          const leafMesh = this.block.getMesh("leaves");
+          leafMesh.position.set(
+            position.x + this.position.x,
+            position.y + this.position.y,
+            position.z + this.position.z
+          );
+          this.leafGroup.add(leafMesh);
+        }
       } else if (char === "+") {
         // Turn right
         direction.applyAxisAngle(new THREE.Vector3(0, 0, 1), this.angle);
@@ -82,28 +76,22 @@ class Tree {
         direction.applyAxisAngle(new THREE.Vector3(0, 0, 1), -this.angle);
       } else if (char === "[") {
         // Save the current position and direction
-        direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), this.angle);
         positionStack.push(position.clone());
         directionStack.push(direction.clone());
       } else if (char === "]") {
         // Restore the saved position and direction
-        direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), -this.angle);
         position = positionStack.pop();
         direction = directionStack.pop();
       }
     }
-
-    // Update the instance matrices
-    this.trunkMesh.instanceMatrix.needsUpdate = true;
-    this.leafMesh.instanceMatrix.needsUpdate = true;
   }
 
   /**
    * Add tree mesh to the scene
    */
   addToScene(scene) {
-    scene.add(this.trunkMesh);
-    scene.add(this.leafMesh);
+    scene.add(this.trunkGroup);
+    scene.add(this.leafGroup);
   }
 }
 

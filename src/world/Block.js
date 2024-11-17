@@ -13,11 +13,11 @@ class Block {
     }
 
     /**
-     * Get instanced mesh for a block type
+     * Get a regular mesh for a block type
      */
-    getInstancedMesh(type, instanceCount) {
+    getMesh(type) {
         const material = this.getMaterial(type);
-        return new THREE.InstancedMesh(this.blockGeometry, material, instanceCount);
+        return new THREE.Mesh(this.blockGeometry, material);
     }
 
     /**
