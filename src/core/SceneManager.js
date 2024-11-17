@@ -37,7 +37,7 @@ class SceneManager {
       
         // Create the player 
         this.player = new Player(this.scene, this.camera);
-  
+    }
     // Function to update the scene
     update(deltaTime){
 
