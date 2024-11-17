@@ -24,12 +24,12 @@ export default class Sun {
         // Starting with the sun colored red
         this.color = new THREE.Color(1, 0, 0);
         // Making the Sun
-        this.radius = 5;
+        this.radius = 50;
         this.geometry = new THREE.BoxGeometry(this.radius * 2, this.radius * 2, this.radius * 2);
         this.material = new THREE.MeshBasicMaterial({ color: this.color });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         // Positionning the sun
-        this.mesh.position.set(100, 0, 0);
+        this.mesh.position.set(1000, 0, 0);
         // Rotating it so that it starts below the horizon
         this.sunRise = Math.asin(-this.radius / (this.mesh.position.x - 10)); // Starting angle
         this.currentA = this.sunRise;
@@ -38,7 +38,7 @@ export default class Sun {
         // Total angles traveled form the beginning 
         this.sunSet = Math.atan2(this.mesh.position.y, -this.mesh.position.x) - this.sunRise + (2 * Math.PI);
         // Toatal angles traveled divided by 15 times 10
-        this.time = (this.sunSet / 0.261799) * 10
+        this.time = (this.sunSet / 0.261799) * 50
 
         // Max ambient light intesity
         this.intesity = this.ambientLight.intensity;

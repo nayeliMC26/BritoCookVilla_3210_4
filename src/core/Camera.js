@@ -3,7 +3,7 @@ import * as THREE from 'three';
 class Camera {
     constructor() {
         // Create the camera 
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
         this.camera.position.set(0, 20, 110);
         this.camera.lookAt(0, 0, 0);
     }
