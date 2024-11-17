@@ -15,8 +15,6 @@ class SceneManager {
         this.cameraModule = new Camera();
         this.camera = this.cameraModule.getCamera();
 
-        this.sun = new Sun(this.scene, this.ambientLight);
-        this.moon = new Moon(this.scene, this.ambientLight);
         // Create the terrain
         this.terrain = new Terrain({
             size: 3000,
@@ -32,10 +30,15 @@ class SceneManager {
         // Create the lighting
         this.lighting = new Lighting();
         this.lighting.addToScene(this.scene);
+
+        this.sun = new Sun(this.scene, this.lighting.ambientLight);
+        this.moon = new Moon(this.scene, this.lighting.ambientLight);
     }
   
     // Function to update the scene
-    update(deltaTime) {
+    update(deltaTime){
+
+        // Update sun and moon positions
         this.sun.animate(deltaTime);
         this.moon.animate(deltaTime);
     }
