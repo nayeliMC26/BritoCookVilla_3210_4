@@ -1,3 +1,4 @@
+// SnowFlake animation adapted from 
 import * as THREE from "three";
 
 export default class Sky {
@@ -19,73 +20,112 @@ export default class Sky {
             { r: 0.859, g: 0.388, b: 0.533 }, // Soft-Pink
             { r: 0, g: 0, b: 0.015 } // Dark Blue
         ];
+        // The amount of snowflakes 
+        this.snowFlakeAmount = 2500;
         // Making sky
         this.#initSky();
+        // Making Snow
+        this.#initSnow();
     }
 
     #initSky() {
         // Starting with the sky colored red
         this.color = new THREE.Color(1, 0, 0);
-        this.color = new THREE.Color(0.0, 0.0, 0.015);
-        this.color = new THREE.Color(0, 0, 0.1);
         // Making the sky
         this.radius = 500;
         this.geometry = new THREE.BoxGeometry(this.radius * 2, this.radius * 2, this.radius * 2);
         this.material = new THREE.MeshBasicMaterial({ color: this.color, side: THREE.DoubleSide });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-        // Adding sky to the scene
         this.scene.add(this.mesh);
+    }
+
+    #initSnow() {
+        // Getting random x, y, z in [-this.radius, this.radius] 
+        var vertices = [];
+        for (var i = 0; i < this.snowFlakeAmount; i++) {
+            const x = (Math.random() - 0.5) * this.radius;
+            const y = (Math.random() - 0.5) * this.radius;
+            const z = (Math.random() - 0.5) * this.radius;
+            vertices.push(x, y, z);
+        }
+        // One bufferGeometry for better performace
+        this.snowflakes = new THREE.BufferGeometry();
+        this.snowflakes.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        // Snow textured point material
+        var material = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 2.5,
+            map: new THREE.TextureLoader().load('snow.png'),
+        });
+        this.snow = new THREE.Points(this.snowflakes, material);
+        this.scene.add(this.snow);
     }
 
     #updateColor() {
         switch (true) {
             case (this.percentage <= .075): // Orange to Light Blue
                 var currP = (this.percentage) / .075;
-                this.color.r = this.#colorChange(this.pallete[0].r, this.pallete[1].r, currP)
-                this.color.g = this.#colorChange(this.pallete[0].g, this.pallete[1].g, currP)
-                this.color.b = this.#colorChange(this.pallete[0].b, this.pallete[1].b, currP)
+                this.#colorChange(this.pallete[0], this.pallete[1], currP)
                 break;
             case (this.percentage > .425 && this.percentage <= .475): // Light Blue to Soft-Orange
                 var currP = (this.percentage - .425) / .05;
-                this.color.r = this.#colorChange(this.pallete[1].r, this.pallete[2].r, currP)
-                this.color.g = this.#colorChange(this.pallete[1].g, this.pallete[2].g, currP)
-                this.color.b = this.#colorChange(this.pallete[1].b, this.pallete[2].b, currP)
+                this.#colorChange(this.pallete[1], this.pallete[2], currP)
                 break;
             case (this.percentage > .475 && this.percentage <= .5): // Soft-Orange to Soft-Pink
                 var currP = (this.percentage - .475) / .025;
-                this.color.r = this.#colorChange(this.pallete[2].r, this.pallete[3].r, currP)
-                this.color.g = this.#colorChange(this.pallete[2].g, this.pallete[3].g, currP)
-                this.color.b = this.#colorChange(this.pallete[2].b, this.pallete[3].b, currP)
+                this.#colorChange(this.pallete[2], this.pallete[3], currP)
                 break;
             case (this.percentage > .5 && this.percentage <= .55): // Soft-Pink to Dark Blue
                 var currP = (this.percentage - .5) / .05;
-                this.color.r = this.#colorChange(this.pallete[3].r, this.pallete[4].r, currP)
-                this.color.g = this.#colorChange(this.pallete[3].g, this.pallete[4].g, currP)
-                this.color.b = this.#colorChange(this.pallete[3].b, this.pallete[4].b, currP)
+                this.#colorChange(this.pallete[3], this.pallete[4], currP)
                 break;
             case (this.percentage > .95 && this.percentage <= .975): // Dark Blue to Soft-Orange
                 var currP = (this.percentage - .95) / .025;
-                this.color.r = this.#colorChange(this.pallete[4].r, this.pallete[2].r, currP)
-                this.color.g = this.#colorChange(this.pallete[4].g, this.pallete[2].g, currP)
-                this.color.b = this.#colorChange(this.pallete[4].b, this.pallete[2].b, currP)
+                this.#colorChange(this.pallete[4], this.pallete[2], currP)
                 break;
             case (this.percentage > .975 && this.percentage <= 1): // Soft-Orange to Orange
                 var currP = (this.percentage - .975) / .025;
-                this.color.r = this.#colorChange(this.pallete[2].r, this.pallete[0].r, currP)
-                this.color.g = this.#colorChange(this.pallete[2].g, this.pallete[0].g, currP)
-                this.color.b = this.#colorChange(this.pallete[2].b, this.pallete[0].b, currP)
+                this.#colorChange(this.pallete[2], this.pallete[0], currP)
                 break;
         }
         this.material.color.set(this.color);
     }
 
+    /**
+     * Changes color from oldCol to newCol depending on percentage
+     * @param {*} oldCol Old color
+     * @param {*} newCol New color
+     * @param {*} percentage How much along the color change are we
+     */
     #colorChange(oldCol, newCol, percentage) {
-        return oldCol + ((newCol - oldCol) * percentage);
+        this.color.r = oldCol.r + ((newCol.r - oldCol.r) * percentage)
+        this.color.g = oldCol.g + ((newCol.g - oldCol.g) * percentage)
+        this.color.b = oldCol.b + ((newCol.b - oldCol.b) * percentage)
     }
 
-    update(time) {
+    animate(time) {
         if (isNaN(time)) return;
         this.percentage = (time % this.time) / this.time;
+
+        // List of all vertices
+        const vertices = this.snowflakes.attributes.position.array;
+        // Move each snowflake
+        for (var i = 0; i < this.snowFlakeAmount * 3; i += 3) {
+            // move down a snowflake
+            vertices[i] += 0.1 * Math.sin(i / 30 + time / 40); // X axis
+            vertices[i + 1] -= 0.1 * Math.cos(i / 150 + time / 70) + 0.2; // Y axis
+            vertices[i + 2] += 0.1 * Math.cos(i / 50 + time / 20); // Z axis
+
+            // Recycle after it falls under the ground
+            if (vertices[i + 1] < -50) {
+                vertices[i] = (Math.random() - 0.5) * 2 * this.radius;
+                vertices[i + 1] = (Math.random() - 0.5) * 2 * this.radius;
+                vertices[i + 2] = (Math.random() - 0.5) * 2 * this.radius;
+            }
+        }
+        // Updating the snowflake location
+        this.snowflakes.getAttribute('position').needsUpdate = true
+        // Updating sky color
         this.#updateColor();
     }
 }

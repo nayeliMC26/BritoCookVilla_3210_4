@@ -20,9 +20,6 @@ class SceneManager {
         plane.rotateX(Math.PI / 2)
         this.scene.add(plane);
 
-        // Day Color -> 0xB9EBFF
-        // Night Color -> 0x001A38
-
         this.sun = new Sun(this.scene, this.ambientLight);
         this.moon = new Moon(this.scene, this.ambientLight);
         this.sky = new Sky(this.scene, this.sun.getDayLenght() * 2);
@@ -34,7 +31,7 @@ class SceneManager {
     update(time) {
         this.sun.animate(time);
         this.moon.animate(time);
-        this.sky.update(time);
+        this.sky.animate(time);
     }
 
     add(object) {

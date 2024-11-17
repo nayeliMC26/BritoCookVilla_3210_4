@@ -1,1 +1,0 @@
-/* Temp file to handle dynamic lighting and daylight cycles */
