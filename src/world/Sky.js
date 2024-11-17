@@ -1,4 +1,4 @@
-// SnowFlake animation adapted from 
+// Snowflake animation adapted from https://github.com/boytchev/etudes/blob/master/threejs/snowing.html
 import * as THREE from "three";
 
 export default class Sky {
@@ -7,7 +7,6 @@ export default class Sky {
         this.scene = scene;
         // How much both day + night take
         this.time = time;
-        console.log(time);
         // Percentage of time passed
         this.percentage;
         // Parameters for sky geometry
@@ -55,7 +54,7 @@ export default class Sky {
         var material = new THREE.PointsMaterial({
             color: 0xffffff,
             size: 2.5,
-            map: new THREE.TextureLoader().load('snow.png'),
+            map: new THREE.TextureLoader().load('/textures/snowFlake.png'),
         });
         this.snow = new THREE.Points(this.snowflakes, material);
         this.scene.add(this.snow);
@@ -105,8 +104,10 @@ export default class Sky {
 
     animate(time) {
         if (isNaN(time)) return;
+        // Perctange of time pass for a full "24-hour" cycle
         this.percentage = (time % this.time) / this.time;
 
+        // Snowflake animation adapted from https://github.com/boytchev/etudes/blob/master/threejs/snowing.html
         // List of all vertices
         const vertices = this.snowflakes.attributes.position.array;
         // Move each snowflake
