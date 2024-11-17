@@ -13,45 +13,74 @@ class Block {
     }
 
     /**
-     * Get a regular mesh for a block type
+     * Get a regular mesh for a block type with exposed sides
      */
-    getMesh(type) {
-        const material = this.getMaterial(type);
-        return new THREE.Mesh(this.blockGeometry, material);
+    getMesh(type, exposedSides) {
+        // Ensure exposedSides is an object with default values in case it's undefined
+        exposedSides = exposedSides || {
+            top: false,
+            bottom: false,
+            right: false,
+            left: false,
+            front: false,
+            back: false
+        };
+
+        const materials = this.getMaterial(type, exposedSides);
+        return new THREE.Mesh(this.blockGeometry, materials);
     }
 
     /**
-     * Get material for block type
+     * Get material for block type based on exposed sides
      */
-    getMaterial(type) {
+    getMaterial(type, exposedSides) {
+        let materials = [];
+
+        // Ensure exposedSides is properly set (defaulting to false if undefined)
+        exposedSides = exposedSides || {
+            top: false,
+            bottom: false,
+            right: false,
+            left: false,
+            front: false,
+            back: false
+        };
+
         switch (type) {
             case "grass":
-                return Array(6).fill(new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }));
+                materials = Array(6).fill(new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }));
+                break;
             case "dirt":
-                return [
-                    new THREE.MeshStandardMaterial({ map: this.materials.sideTexture }), // Right
-                    new THREE.MeshStandardMaterial({ map: this.materials.sideTexture }), // Left
-                    new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }), // Top
-                    new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }),  // Bottom
-                    new THREE.MeshStandardMaterial({ map: this.materials.sideTexture }), // Front
-                    new THREE.MeshStandardMaterial({ map: this.materials.sideTexture })  // Back
+                materials = [
+                    exposedSides.right ? new THREE.MeshStandardMaterial({ map: this.materials.sideTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Right
+                    exposedSides.left ? new THREE.MeshStandardMaterial({ map: this.materials.sideTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Left
+                    exposedSides.top ? new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Top
+                    exposedSides.bottom ? new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }),  // Bottom
+                    exposedSides.front ? new THREE.MeshStandardMaterial({ map: this.materials.sideTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Front
+                    exposedSides.back ? new THREE.MeshStandardMaterial({ map: this.materials.sideTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 })  // Back
                 ];
+                break;
             case "stone":
-                return Array(6).fill(new THREE.MeshStandardMaterial({ map: this.materials.iceTexture }));
+                materials = Array(6).fill(new THREE.MeshStandardMaterial({ map: this.materials.iceTexture }));
+                break;
             case "spruce":
-                return [
-                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }), // Right
-                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }), // Left
-                    new THREE.MeshStandardMaterial({ map: this.materials.spruceTopTexture }), // Top
-                    new THREE.MeshStandardMaterial({ map: this.materials.spruceTopTexture }),  // Bottom
-                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }), // Front
-                    new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture })  // Back
+                materials = [
+                    exposedSides.right ? new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Right
+                    exposedSides.left ? new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Left
+                    exposedSides.top ? new THREE.MeshStandardMaterial({ map: this.materials.spruceTopTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Top
+                    exposedSides.bottom ? new THREE.MeshStandardMaterial({ map: this.materials.spruceTopTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }),  // Bottom
+                    exposedSides.front ? new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Front
+                    exposedSides.back ? new THREE.MeshStandardMaterial({ map: this.materials.spruceLogTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 })  // Back
                 ];
+                break;
             case "leaves":
-                return Array(6).fill(new THREE.MeshStandardMaterial({ map: this.materials.leavesTexture }));
+                materials = Array(6).fill(new THREE.MeshStandardMaterial({ map: this.materials.leavesTexture }));
+                break;
             default:
-                return Array(6).fill(new THREE.MeshStandardMaterial({ color: 0xffffff }));
+                materials = Array(6).fill(new THREE.MeshStandardMaterial({ color: 0xffffff }));
         }
+
+        return materials;
     }
 }
 
