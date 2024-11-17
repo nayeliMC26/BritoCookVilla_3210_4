@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import Camera from '/src/core/Camera.js'
+
 import Sun from '../entities/Sun';
 import Moon from '../entities/Moon';
 import Terrain from "/src/world/Terrain.js";
 import Lighting from "/src/world/Lighting.js";
 import Tree from "../entities/Tree";
+import Player from '../entities/Player';
 
 /* Class to handle creating the scene and updating it */
 class SceneManager {
@@ -30,10 +32,11 @@ class SceneManager {
         // Create the lighting
         this.lighting = new Lighting();
         this.lighting.addToScene(this.scene);
-
         this.sun = new Sun(this.scene, this.lighting.ambientLight);
         this.moon = new Moon(this.scene, this.lighting.ambientLight);
-    }
+      
+        // Create the player 
+        this.player = new Player(this.scene, this.camera);
   
     // Function to update the scene
     update(deltaTime){
