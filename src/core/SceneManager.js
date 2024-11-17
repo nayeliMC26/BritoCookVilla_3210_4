@@ -23,8 +23,6 @@ class SceneManager {
             resolution: 50,
             color: 0x368933,
         });
-        this.terrain.castShadow = true;
-        this.terrain.receiveShadow = true;
         this.terrain.addToScene(this.scene);
         // Create a test tree
         const tree1 = new Tree(new THREE.Vector3(0, 100, 0), 10, 2, Math.PI/2);
