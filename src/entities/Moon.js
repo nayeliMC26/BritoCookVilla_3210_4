@@ -45,6 +45,15 @@ export default class Moon {
         // moon light
         this.directionalLight = new THREE.DirectionalLight(0x000000, this.intesity);
         this.directionalLight.castShadow = true;
+        this.directionalLight.castShadow = true;
+        this.directionalLight.shadow.mapSize.width = 2048; // Higher values = better shadow quality
+        this.directionalLight.shadow.mapSize.height = 2048;
+        this.directionalLight.shadow.camera.near = 0.5; // Adjust the near plane
+        this.directionalLight.shadow.camera.far = 10000; // Adjust the far plane
+        this.directionalLight.shadow.camera.left = -500;
+        this.directionalLight.shadow.camera.right = 500;
+        this.directionalLight.shadow.camera.top = 500;
+        this.directionalLight.shadow.camera.bottom = -500;
         this.directionalLight.visible = false;
         // Binding the light to the moon
         this.mesh.add(this.directionalLight)
