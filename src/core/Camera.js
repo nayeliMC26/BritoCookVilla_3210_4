@@ -12,6 +12,7 @@ class Camera {
     getCamera() {
         return this.camera;
     }
+
 }
 
 export default Camera;
