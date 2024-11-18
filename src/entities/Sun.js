@@ -59,10 +59,10 @@ export default class Sun {
         // Binding the light to the sun
         this.mesh.add(this.directionalLight);
 
-        const shadowHelper = new THREE.CameraHelper(
-            this.directionalLight.shadow.camera
-        );
-        this.scene.add(shadowHelper);
+        // const shadowHelper = new THREE.CameraHelper(
+        //     this.directionalLight.shadow.camera
+        // );
+        // this.scene.add(shadowHelper);
 
         // Adding sun to the scene
         this.scene.add(this.mesh);

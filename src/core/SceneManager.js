@@ -31,7 +31,7 @@ class SceneManager {
             size: 3000,
             blockSize: 10,
             maxHeight: 10,
-            resolution: 10,
+            resolution: 20,
             color: 0x368933,
         });
         this.terrain.addToScene(this.scene);
@@ -45,7 +45,7 @@ class SceneManager {
             const exposedSides = this.terrain.getExposedSides(x, y, z);
             if (exposedSides.top) {
                 // Add a small probability for tree spawning
-                if (Math.random() < 0.01) {
+                if (Math.random() < 0.001) {
                     // Adjust the probability as needed
                     const tree = new Tree(
                         new THREE.Vector3(x, y + this.terrain.blockSize, z), // Position the tree above the block
