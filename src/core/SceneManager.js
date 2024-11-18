@@ -37,7 +37,7 @@ class SceneManager {
   
     // Function to update the scene
     update(deltaTime){
-
+        this.terrain.update();
         // Update sun and moon positions
         this.sun.animate(deltaTime);
         this.moon.animate(deltaTime);

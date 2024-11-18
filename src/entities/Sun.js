@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 export default class Sun {
-
     constructor(scene, light) {
         this.scene = scene;
         // Ambinet light
@@ -25,7 +24,11 @@ export default class Sun {
         this.color = new THREE.Color(1, 0, 0);
         // Making the Sun
         this.radius = 50;
-        this.geometry = new THREE.BoxGeometry(this.radius * 2, this.radius * 2, this.radius * 2);
+        this.geometry = new THREE.BoxGeometry(
+            this.radius * 2,
+            this.radius * 2,
+            this.radius * 2
+        );
         this.material = new THREE.MeshBasicMaterial({ color: this.color });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         // Positionning the sun
@@ -35,18 +38,37 @@ export default class Sun {
         this.currentA = this.sunRise;
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(this.sunRise);
         this.mesh.applyMatrix4(rotationMatrix);
-        // Total angles traveled form the beginning 
-        this.sunSet = Math.atan2(this.mesh.position.y, -this.mesh.position.x) - this.sunRise + (2 * Math.PI);
+        // Total angles traveled form the beginning
+        this.sunSet =
+            Math.atan2(this.mesh.position.y, -this.mesh.position.x) -
+            this.sunRise +
+            2 * Math.PI;
         // Toatal angles traveled divided by 15 times 10
-        this.time = (this.sunSet / 0.261799) * 50
+        this.time = (this.sunSet / 0.261799) * 50;
 
         // Max ambient light intesity
         this.intesity = this.ambientLight.intensity;
         // Sun light (half intensity to not overide ambinet light too much)
-        this.directionalLight = new THREE.DirectionalLight(0xffffff, this.intesity / 2);
+        this.directionalLight = new THREE.DirectionalLight(
+            0xffffff,
+            this.intesity * 2
+        );
         this.directionalLight.castShadow = true;
+        this.directionalLight.shadow.mapSize.width = 2048; // Higher values = better shadow quality
+        this.directionalLight.shadow.mapSize.height = 2048;
+        this.directionalLight.shadow.camera.near = 0.5; // Adjust the near plane
+        this.directionalLight.shadow.camera.far = 10000; // Adjust the far plane
+        this.directionalLight.shadow.camera.left = -500;
+        this.directionalLight.shadow.camera.right = 500;
+        this.directionalLight.shadow.camera.top = 500;
+        this.directionalLight.shadow.camera.bottom = -500;
         // Binding the light to the sun
-        this.mesh.add(this.directionalLight)
+        this.mesh.add(this.directionalLight);
+
+        const shadowHelper = new THREE.CameraHelper(
+            this.directionalLight.shadow.camera
+        );
+        this.scene.add(shadowHelper);
 
         // Adding sun to the scene
         this.scene.add(this.mesh);
@@ -54,26 +76,29 @@ export default class Sun {
 
     #updateColor() {
         switch (true) {
-            case (this.percentage <= .15): // Red to Orange
-                this.color.g = 0.655 * (this.percentage / .15);
+            case this.percentage <= 0.15: // Red to Orange
+                this.color.g = 0.655 * (this.percentage / 0.15);
                 break;
-            case (this.percentage > .15 && this.percentage <= .25): // Orange to White
-                this.color.g = 0.655 + (0.345 * ((this.percentage - .15) / .10));
-                this.color.b = (this.percentage - .15) / .10;
+            case this.percentage > 0.15 && this.percentage <= 0.25: // Orange to White
+                this.color.g = 0.655 + 0.345 * ((this.percentage - 0.15) / 0.1);
+                this.color.b = (this.percentage - 0.15) / 0.1;
                 break;
-            case (this.percentage > .75 && this.percentage <= .85): // White to Soft-Orange
-                this.color.r = 1 - (0.067 * ((this.percentage - .75) / .10));
-                this.color.g = 1 - (0.314 * ((this.percentage - .75) / .10));
-                this.color.b = 1 - (0.620 * ((this.percentage - .75) / .10));
+            case this.percentage > 0.75 && this.percentage <= 0.85: // White to Soft-Orange
+                this.color.r = 1 - 0.067 * ((this.percentage - 0.75) / 0.1);
+                this.color.g = 1 - 0.314 * ((this.percentage - 0.75) / 0.1);
+                this.color.b = 1 - 0.62 * ((this.percentage - 0.75) / 0.1);
                 break;
-            case (this.percentage > .85 && this.percentage <= 1): // Soft-Orange to Purple
-                this.color.r = 0.933 - (0.517 * ((this.percentage - .85) / .15));
-                this.color.g = 0.686 - (0.635 * ((this.percentage - .85) / .15));
-                this.color.b = 0.380 - (-0.134 * ((this.percentage - .85) / .15));
+            case this.percentage > 0.85 && this.percentage <= 1: // Soft-Orange to Purple
+                this.color.r =
+                    0.933 - 0.517 * ((this.percentage - 0.85) / 0.15);
+                this.color.g =
+                    0.686 - 0.635 * ((this.percentage - 0.85) / 0.15);
+                this.color.b =
+                    0.38 - -0.134 * ((this.percentage - 0.85) / 0.15);
                 break;
-            case (this.percentage > 1.5): // Reseting color at some point past the day time
+            case this.percentage > 1.5: // Reseting color at some point past the day time
                 this.color.set(1, 0, 0);
-                break
+                break;
         }
         // Only change ambient light when its day time
         if (this.percentage <= 1) this.ambientLight.color.set(this.color);
@@ -83,15 +108,19 @@ export default class Sun {
 
     #updateIntensity() {
         switch (true) {
-            case (this.percentage <= .05): // Increase the light early
+            case this.percentage <= 0.05: // Increase the light early
                 this.directionalLight.visible = true;
-                this.ambientLight.intensity = (this.intesity / 2) + ((this.intesity / 2) * (this.percentage / .05));
+                this.ambientLight.intensity =
+                    this.intesity / 2 +
+                    (this.intesity / 2) * (this.percentage / 0.05);
                 break;
 
-            case (this.percentage > .95 && this.percentage <= 1): // Decreasing the light late
-                this.ambientLight.intensity = this.intesity - ((this.intesity / 2) * ((this.percentage - .95) / .05));
+            case this.percentage > 0.95 && this.percentage <= 1: // Decreasing the light late
+                this.ambientLight.intensity =
+                    this.intesity -
+                    (this.intesity / 2) * ((this.percentage - 0.95) / 0.05);
                 break;
-            case (this.percentage > 1): // Sun light is invisible after day time
+            case this.percentage > 1: // Sun light is invisible after day time
                 console.log(this.ambientLight.intensity);
                 this.directionalLight.visible = false;
                 break;
@@ -101,8 +130,11 @@ export default class Sun {
     animate(time) {
         if (isNaN(time)) return;
         // the angle that were going to rotate the sun by
-        var angle = this.sunRise + ((this.sunSet / this.time) * (time % (this.time * 2)));
-        var rotationMatrix = new THREE.Matrix4().makeRotationZ(angle - this.currentA);
+        var angle =
+            this.sunRise + (this.sunSet / this.time) * (time % (this.time * 2));
+        var rotationMatrix = new THREE.Matrix4().makeRotationZ(
+            angle - this.currentA
+        );
         this.percentage = (angle - this.sunRise) / this.sunSet;
         // Move the sun as long as its day time and a little more
         if (this.percentage <= 1.5) {

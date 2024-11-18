@@ -4,15 +4,12 @@ class Lighting {
         /**
          * Overridden by sun and moon
          */
-        this.ambientLight = new THREE.AmbientLight(0xffffff, 1);
-        this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        this.directionalLight.castShadow = true;
+        this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 
     }
 
     addToScene(scene) {
         scene.add(this.ambientLight);
-        scene.add(this.directionalLight);
     }
 }
 
