@@ -22,10 +22,10 @@ class SceneManager {
         this.colorAmbientLight = new THREE.AmbientLight(0x404040, 0.5);
         this.scene.add(this.colorAmbientLight);
 
-        // Sun and Moon objects / lighting 
+        // Sun and Moon objects / lighting
         this.sun = new Sun(this.scene, this.colorAmbientLight);
         this.moon = new Moon(this.scene, this.colorAmbientLight);
-        
+
         // Create the terrain
         this.terrain = new Terrain({
             size: 3000,
@@ -57,11 +57,6 @@ class SceneManager {
                 }
             }
         }
-
-        // Create the lighting
-        this.lighting = new Lighting();
-        this.lighting.addToScene(this.scene);
-
     }
 
     // Function to update the scene
