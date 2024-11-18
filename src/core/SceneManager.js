@@ -3,7 +3,6 @@ import Camera from "/src/core/Camera.js";
 import Sun from "../entities/Sun";
 import Moon from "../entities/Moon";
 import Terrain from "/src/world/Terrain.js";
-import Lighting from "/src/world/Lighting.js";
 import Tree from "../entities/Tree";
 
 /* Class to handle creating the scene and updating it */
@@ -15,6 +14,18 @@ class SceneManager {
         this.cameraModule = new Camera();
         this.camera = this.cameraModule.getCamera();
 
+        //  Ambient light to control the light color mixture
+        this.worldAmbientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        this.scene.add(this.worldAmbientLight);
+
+        // Ambient light to control sun or moon light color
+        this.colorAmbientLight = new THREE.AmbientLight(0x404040, 0.5);
+        this.scene.add(this.colorAmbientLight);
+
+        // Sun and Moon objects / lighting 
+        this.sun = new Sun(this.scene, this.colorAmbientLight);
+        this.moon = new Moon(this.scene, this.colorAmbientLight);
+        
         // Create the terrain
         this.terrain = new Terrain({
             size: 3000,
@@ -51,8 +62,6 @@ class SceneManager {
         this.lighting = new Lighting();
         this.lighting.addToScene(this.scene);
 
-        this.sun = new Sun(this.scene, this.lighting.ambientLight);
-        this.moon = new Moon(this.scene, this.lighting.ambientLight);
     }
 
     // Function to update the scene
