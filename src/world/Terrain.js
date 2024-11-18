@@ -224,6 +224,10 @@ class Terrain {
         }
     }
 
+    getBlockLocations() {
+        return this.blockLocations;
+    }
+
     /**
      * Add terrain mesh to the scene
      */
