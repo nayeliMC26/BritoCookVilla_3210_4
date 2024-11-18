@@ -1,7 +1,6 @@
 import * as THREE from "three";
 
 export default class Sun {
-
     constructor(scene, light) {
         this.scene = scene;
         // Ambinet light
@@ -24,12 +23,16 @@ export default class Sun {
         // Starting with the sun colored red
         this.color = new THREE.Color(1, 0, 0);
         // Making the Sun
-        this.radius = 5;
-        this.geometry = new THREE.BoxGeometry(this.radius * 2, this.radius * 2, this.radius * 2);
+        this.radius = 50;
+        this.geometry = new THREE.BoxGeometry(
+            this.radius * 2,
+            this.radius * 2,
+            this.radius * 2
+        );
         this.material = new THREE.MeshBasicMaterial({ color: this.color });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-        // Positioning the sun
-        this.mesh.position.set(500, 0, 0);
+        // Positionning the sun
+        this.mesh.position.set(1000, 0, 0);
         // Rotating it so that it starts below the horizon
         this.sunRise = Math.asin(-this.radius / (this.mesh.position.x - 10)); // Starting angle
         this.currentA = this.sunRise;
@@ -45,8 +48,21 @@ export default class Sun {
         // Sun light (half intensity to not overide ambinet light)
         this.directionalLight = new THREE.DirectionalLight(0x606060, this.intesity / 2);
         this.directionalLight.castShadow = true;
+        this.directionalLight.shadow.mapSize.width = 2048; // Higher values = better shadow quality
+        this.directionalLight.shadow.mapSize.height = 2048;
+        this.directionalLight.shadow.camera.near = 0.5; // Adjust the near plane
+        this.directionalLight.shadow.camera.far = 10000; // Adjust the far plane
+        this.directionalLight.shadow.camera.left = -500;
+        this.directionalLight.shadow.camera.right = 500;
+        this.directionalLight.shadow.camera.top = 500;
+        this.directionalLight.shadow.camera.bottom = -500;
         // Binding the light to the sun
-        this.mesh.add(this.directionalLight)
+        this.mesh.add(this.directionalLight);
+
+        const shadowHelper = new THREE.CameraHelper(
+            this.directionalLight.shadow.camera
+        );
+        this.scene.add(shadowHelper);
 
         // Adding sun to the scene
         this.scene.add(this.mesh);

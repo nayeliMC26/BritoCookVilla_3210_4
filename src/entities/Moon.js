@@ -22,13 +22,13 @@ export default class Moon {
 
     #initMoon() {
         // Making the moon
-        this.radius = 5;
+        this.radius = 50;
         this.geometry = new THREE.BoxGeometry(this.radius * 2, this.radius * 2, this.radius * 2);
         this.material = new THREE.MeshBasicMaterial({ color: 0xF1EB99 });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-        // Positioning the moon
-        this.mesh.position.set(500, 0, 0);
-        // Rotating it to be below the horizon
+        // Positionning the moon
+        this.mesh.position.set(1000, 0, 0);
+        // Rotating it so that it starts below the horizon
         this.moonRise = Math.asin(-this.radius / (this.mesh.position.x - 10)); // Starting angle
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(this.moonRise);
         this.mesh.applyMatrix4(rotationMatrix);
@@ -49,6 +49,16 @@ export default class Moon {
         // Moon light (half intensity to not overide ambinet light)
         this.directionalLight = new THREE.DirectionalLight(this.color, this.intesity / 2);
         this.directionalLight.castShadow = true;
+        this.directionalLight.castShadow = true;
+        this.directionalLight.shadow.mapSize.width = 2048; // Higher values = better shadow quality
+        this.directionalLight.shadow.mapSize.height = 2048;
+        this.directionalLight.shadow.camera.near = 0.5; // Adjust the near plane
+        this.directionalLight.shadow.camera.far = 10000; // Adjust the far plane
+        this.directionalLight.shadow.camera.left = -500;
+        this.directionalLight.shadow.camera.right = 500;
+        this.directionalLight.shadow.camera.top = 500;
+        this.directionalLight.shadow.camera.bottom = -500;
+        this.directionalLight.visible = false;
         // Binding the light to the moon
         this.mesh.add(this.directionalLight)
 
