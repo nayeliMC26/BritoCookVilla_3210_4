@@ -14,13 +14,12 @@ class Main {
         document.body.appendChild(this.stats.dom);
 
         this.animate = this.animate.bind(this);
-        this.animate();
 
         this.controls = new OrbitControls(this.sceneManager.camera, this.renderer.renderer.domElement);
 
 
         window.addEventListener('keydown', (event) => this.keydown(event), false);
-
+        this.animate();
     }
 
     keydown(event) {
@@ -41,7 +40,7 @@ class Main {
     }
 
     // Animation loop
-    animate() {
+    animate(time) {
         this.stats.begin();
         this.controls.update();
 

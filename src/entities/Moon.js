@@ -40,7 +40,7 @@ export default class Moon {
         this.currentA = this.moonSet;
         this.percentage = 1;
         // How much a rotation should take for 15 degrees every 10 seconds
-        this.time = (this.moonSet / 0.261799) * 10
+        this.time = (this.moonSet / 0.261799) * 1
 
         // Starting with the moon light as purple
         this.color = new THREE.Color(0.416, 0.051, 0.514);
@@ -48,7 +48,6 @@ export default class Moon {
         this.intesity = this.ambientLight.intensity / 2;
         // Moon light (half intensity to not overide ambinet light)
         this.directionalLight = new THREE.DirectionalLight(this.color, this.intesity / 2);
-        this.directionalLight.castShadow = true;
         this.directionalLight.castShadow = true;
         this.directionalLight.shadow.mapSize.width = 2048; // Higher values = better shadow quality
         this.directionalLight.shadow.mapSize.height = 2048;
@@ -58,7 +57,6 @@ export default class Moon {
         this.directionalLight.shadow.camera.right = 500;
         this.directionalLight.shadow.camera.top = 500;
         this.directionalLight.shadow.camera.bottom = -500;
-        this.directionalLight.visible = false;
         // Binding the light to the moon
         this.mesh.add(this.directionalLight)
 
