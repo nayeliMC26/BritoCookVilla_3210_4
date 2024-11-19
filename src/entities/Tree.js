@@ -2,16 +2,29 @@ import * as THREE from "three";
 import Block from "../world/Block";
 
 class Tree {
-    constructor(position, blockSize, iterations, angle) {
+    constructor(position, blockSize, iterations, angle, grammarType) {
         this.position = position;
-        this.blockSize = blockSize;
+        this.blockSize = blockSize; // Reduce block size to make trees shorter
         this.iterations = iterations;
         this.angle = angle;
         this.axiom = "F";
-        this.rules = { F: "FFF[F][-F]" }; // Simple L-System rules for branching
         this.block = new Block(this.blockSize);
 
-        // Create groups to hold the trunk and leaf meshes
+        // Define the grammars
+        this.grammars = {
+            1: { F: "FF[+F][-F]" }, // Deterministic grammar
+            2: { // Stochastic grammar 1
+                F: () => (Math.random() < 0.5 ? "F[+F]F[-F]F" : "F[-F]F[+F]F")
+            },
+            3: { // Stochastic grammar 2
+                F: () => {
+                    const rules = ["FF[+F][-F]", "F[+F]", "F[-F]"];
+                    return rules[Math.floor(Math.random() * rules.length)];
+                }
+            }
+        };
+
+        this.rules = this.grammars[grammarType];
         this.trunkGroup = new THREE.Group();
         this.leafGroup = new THREE.Group();
 
@@ -26,7 +39,12 @@ class Tree {
         for (let i = 0; i < this.iterations; i++) {
             let nextResult = "";
             for (let char of result) {
-                nextResult += this.rules[char] || char;
+                if (this.rules[char]) {
+                    const rule = this.rules[char];
+                    nextResult += typeof rule === "function" ? rule() : rule;
+                } else {
+                    nextResult += char;
+                }
             }
             result = nextResult;
         }
@@ -38,7 +56,6 @@ class Tree {
      * Function to create the tree based on the L-System string
      */
     generateTree() {
-        var counter = 0;
         const positionStack = [];
         const directionStack = [];
 
@@ -49,83 +66,62 @@ class Tree {
 
         // Iterate over the L-System string and generate the tree structure
         for (let char of axiom) {
-            counter++;
             if (char === "F") {
                 // Move forward, placing a block at the new position for the trunk
                 position.add(direction.clone().multiplyScalar(this.blockSize));
                 const trunkMesh = this.block.getMesh("spruce");
-                trunkMesh.castShadow = true; // Enable this block to cast shadows
-                trunkMesh.receiveShadow = true; // Enable the block to receive shadows if needed
+                trunkMesh.castShadow = true;
+                trunkMesh.receiveShadow = true;
                 trunkMesh.position.set(
                     position.x + this.position.x,
                     position.y + this.position.y,
                     position.z + this.position.z
                 );
                 this.trunkGroup.add(trunkMesh);
-                if (counter >= axiom.length - axiom.length / 2) {
-                    this.addBunchyLeaves(position);
-                }
             } else if (char === "+") {
                 // Turn right
-                direction.applyAxisAngle(
-                    new THREE.Vector3(0, 0, 1),
-                    this.angle
-                );
-                if (counter >= axiom.length - axiom.length / 2) {
-                    this.addBunchyLeaves(position);
-                }
+                direction.applyAxisAngle(new THREE.Vector3(0, 0, 1), this.angle);
             } else if (char === "-") {
                 // Turn left
-                direction.applyAxisAngle(
-                    new THREE.Vector3(0, 0, 1),
-                    -this.angle
-                );
-                if (counter >= axiom.length - axiom.length / 2) {
-                    this.addBunchyLeaves(position);
-                }
+                direction.applyAxisAngle(new THREE.Vector3(0, 0, 1), -this.angle);
             } else if (char === "[") {
                 // Save the current position and direction
-                direction.applyAxisAngle(
-                    new THREE.Vector3(1, 0, 0),
-                    this.angle
-                );
-                if (counter >= axiom.length - axiom.length / 2) {
-                    this.addBunchyLeaves(position);
-                }
                 positionStack.push(position.clone());
                 directionStack.push(direction.clone());
+
+                // Apply an upward tilt when branching
+                direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), this.angle);
             } else if (char === "]") {
                 // Restore the saved position and direction
-                direction.applyAxisAngle(
-                    new THREE.Vector3(1, 0, 0),
-                    -this.angle
-                );
-                if (counter >= axiom.length - axiom.length / 2) {
-                    this.addBunchyLeaves(position);
-                }
                 position = positionStack.pop();
                 direction = directionStack.pop();
+
+                // Apply a downward tilt to restore the original direction
+                direction.applyAxisAngle(new THREE.Vector3(1, 0, 0), -this.angle);
             }
         }
+
+        // Add leaves at the top
+        this.addBunchyLeaves(position);
     }
 
     /**
      * Add bunchy leaves at the given position
      */
     addBunchyLeaves(position) {
-        const numberOfLeaves = 5; // Number of leaves to add in the bunch
-        const leafRadius = this.blockSize * 3; // Radius of the bunch
+        const numberOfLeaves = 10;
+        const leafRadius = this.blockSize * 3;
 
         for (let i = 0; i < numberOfLeaves; i++) {
             const offset = new THREE.Vector3(
-                Math.ceil(Math.random() * leafRadius - 1),
-                Math.ceil(Math.random() * leafRadius - 1),
-                Math.ceil(Math.random() * leafRadius - 1)
+                Math.random() * leafRadius - leafRadius / 2,
+                Math.random() * leafRadius - leafRadius / 2,
+                Math.random() * leafRadius - leafRadius / 2
             );
             const leafMesh = this.block.getMesh("leaves");
             leafMesh.position.set(
                 position.x + this.position.x + offset.x,
-                position.y + this.position.y + offset.y,
+                position.y + this.position.y + offset.y + this.blockSize*2,
                 position.z + this.position.z + offset.z
             );
             this.leafGroup.add(leafMesh);

@@ -31,29 +31,36 @@ class SceneManager {
             size: 3000,
             blockSize: 10,
             maxHeight: 10,
-            resolution: 20,
+            resolution: 50,
             color: 0x368933,
         });
         this.terrain.addToScene(this.scene);
 
-        // Add trees to random locations
+        // Generate trees using the three grammars
         const blockArray = this.terrain.getBlockLocations();
-        for (let i = 0; i < blockArray.length; i++) {
-            const [x, y, z] = blockArray[i];
+        const treeTypes = [1, 2, 3]; // Grammar types
 
-            // Check if the top side is exposed
-            const exposedSides = this.terrain.getExposedSides(x, y, z);
-            if (exposedSides.top) {
-                // Add a small probability for tree spawning
-                if (Math.random() < 0.001) {
-                    // Adjust the probability as needed
+        for (let treeType of treeTypes) {
+            var count = 0;
+            while (count < 10) {
+                // Generate 10 trees per type
+                const randomIndex = Math.floor(
+                    Math.random() * blockArray.length
+                );
+                const [x, y, z] = blockArray[randomIndex];
+
+                // Ensure the tree is placed only on blocks with an exposed top
+                const exposedSides = this.terrain.getExposedSides(x, y, z);
+                if (exposedSides.top) {
                     const tree = new Tree(
-                        new THREE.Vector3(x, y + this.terrain.blockSize, z), // Position the tree above the block
-                        10, // Tree height
-                        2, // Tree width
-                        Math.PI / 2 // Tree rotation
+                        new THREE.Vector3(x, y + this.terrain.blockSize, z),
+                        this.terrain.blockSize,
+                        2, // Number of iterations
+                        Math.PI / 2, // Angle for branching
+                        treeType // Grammar type
                     );
                     tree.addToScene(this.scene);
+                    count++;
                 }
             }
         }
