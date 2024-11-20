@@ -15,44 +15,35 @@ class Block {
     /**
      * Get a regular mesh for a block type with exposed sides
      */
-    getMesh(type, exposedSides) {
-        // Ensure exposedSides is an object with default values in case it's undefined
-        exposedSides = exposedSides || {
-            top: false,
-            bottom: false,
-            right: false,
-            left: false,
-            front: false,
-            back: false
-        };
+    getMesh(type, exposedSides = { top: false, bottom: false, right: false, left: false, front: false, back: false }) {
 
-        const materials = this.getMaterial(type, exposedSides);
-        const block = new THREE.Mesh(this.blockGeometry, materials);
-        block.castShadow = true;
-        block.receiveShadow = true;
+        console.log(exposedSides);
+
+        const block = new THREE.Mesh(this.blockGeometry);
+
+        if (exposedSides.top || exposedSides.bottom || exposedSides.right || exposedSides.left || exposedSides.front || exposedSides.back) {
+            const blockMaterials = this.getMaterial(type, exposedSides);
+            block.material = blockMaterials;
+            block.castShadow = true;
+            block.receiveShadow = true;
+        } else {
+            block.castShadow = false;
+            block.receiveShadow = false;
+        }
+
         return block;
     }
 
     /**
      * Get material for block type based on exposed sides
      */
-    getMaterial(type, exposedSides) {
+    getMaterial(type, exposedSides = { top: false, bottom: false, right: false, left: false, front: false, back: false }) {
         let materials = [];
-
-        // Ensure exposedSides is properly set (defaulting to false if undefined)
-        exposedSides = exposedSides || {
-            top: false,
-            bottom: false,
-            right: false,
-            left: false,
-            front: false,
-            back: false
-        };
 
         switch (type) {
             case "grass":
                 materials = [
-                    exposedSides.right ? new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Right
+                    exposedSides.right ? new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }) : null, // Right
                     exposedSides.left ? new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Left
                     exposedSides.top ? new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }), // Top
                     exposedSides.bottom ? new THREE.MeshStandardMaterial({ map: this.materials.snowTexture }) : new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0 }),  // Bottom
