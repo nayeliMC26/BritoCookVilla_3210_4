@@ -23,7 +23,7 @@ class Player {
         // Add mesh to the scene
         this.scene.add(this.playerMesh);
         // Position should be relative to the height of the ground the player is on
-        this.position = new THREE.Vector3(0, this.terrain.getHeightAt(this.playerMesh.position.x, this.playerMesh.position.z) + (this.height / 2), 0);
+        this.position = new THREE.Vector3(0, this.terrain.getHeightAt(this.playerMesh.position.x, this.playerMesh.position.z) + (this.height), 0);
         this.playerMesh.position.copy(this.position);
 
         this.controls = new PointerLockControls(this.camera, document.body);  // Attach controls to the camera
@@ -115,6 +115,20 @@ class Player {
      * @param {number} deltaTime 
      */
     update(deltaTime) {
+        var moveSpeed = this.speed * deltaTime;
+        // Reset velocity every frame to provent player infinitely moving 
+        this.velocity.x = 0;
+        this.velocity.z = 0;
+        // Very basic movement logic
+        if (this.moveForward){this.velocity.z = -moveSpeed;}
+        if (this.moveBackward){this.velocity.z = moveSpeed;}
+        if (this.moveLeft){this.velocity.x = -moveSpeed;}
+        if (this.moveRight){this.velocity.x = moveSpeed;}
+        // Add velocity to the position
+        this.position.add(this.velocity);
+        // Update the mesh to move when the player moves
+        this.playerMesh.position.copy(this.position);
+        this.camera.position.set(this.position.x, this.position.y + this.height / 2, this.position.z);
 
         // Update camera position based on debug mode
         if (this.debugMode) {
