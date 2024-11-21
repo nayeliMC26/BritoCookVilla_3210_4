@@ -1,40 +1,102 @@
 import * as THREE from 'three';
-// This is part of how we will be getting rid of the cursor on the screen and making it a locked dot in the center
-import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
-
 class Player {
     /**
      * A function to construct a player
      * @param {THREE.Scene} scene 
-     * @param {THREE.Camera} camera
+     * @param {THREE.Camera} camera 
+     * @param {Object} terrain 
      */
-    constructor(scene, camera) {
-        /**
-         * player position would be according to the highest block at the origin (0,0,0), so we would be accessing the matrix locations (?)
-         * we'd be setting the camera position to two blocks above whatever that point is bc player height is two blocks 
-         * then we would just be making sure every time the player moves, their position is two blocks above whichever point in the grid they are on
-         * since the terrain is randomly generated the player position has to be relative it can't be predetermined else we run the risk of spawning above or below land
-         * rather than above it
-         */
+    constructor(scene, camera, terrain) {
+        this.scene = scene;
+        this.camera = camera;
+        this.terrain = terrain;
+        // Height of the player, 2 blocks tall for a block size of 10
+        this.height = 20; 
+        // i get impatient 
+        this.speed = 90; 
+        this.velocity = new THREE.Vector3(); 
+        // Creating a player mesh for debugging and temporary visualization
+        const geometry = new THREE.BoxGeometry(this.height / 2, this.height, this.height / 2);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        this.playerMesh = new THREE.Mesh(geometry, material);
+        // Add mesh to the scene
+        this.scene.add(this.playerMesh);
+        // Position should be relative to the height of the ground the player is on
+        this.position = new THREE.Vector3(0, this.terrain.getHeightAt(this.playerMesh.position.x, this.playerMesh.position.z) + this.height / 2, 0);
+        this.playerMesh.position.copy(this.position);
+        // Flags for movement
+        this.moveForward = false;
+        this.moveBackward = false;
+        this.moveLeft = false;
+        this.moveRight = false;
+        // Debug mode to make sure the player mesh is spawning in correctly 
+        this.debugMode = false;
+        // Caemera offset for debug mode
+        this.cameraOffset = new THREE.Vector3(0, 20, -30); 
 
-        scene.add(camera)
-        this.controls = new PointerLockControls(camera, document.body);
-
+        this.keyboardControls();
     }
-
     /**
-     * A function to handle keyDown events
-     * @param {KeyboardEvent} event 
+     * A function to handle keyboard events
+     * 
      */
-    onKeyDown(event) {
+    keyboardControls() {
+        document.addEventListener('keydown', (event) => {
+            switch (event.code) {
+                case 'KeyW':
+                    this.moveForward = true;
+                    break;
+                case 'KeyS':
+                    this.moveBackward = true;
+                    break;
+                case 'KeyA':
+                    this.moveLeft = true;
+                    break;
+                case 'KeyD':
+                    this.moveRight = true;
+                    break;
+                case 'KeyT':
+                    // Toggling debug mode
+                    this.debugMode = !this.debugMode;
+                    break;
+            }
+        });
 
+        document.addEventListener('keyup', (event) => {
+            switch (event.code) {
+                case 'KeyW':
+                    this.moveForward = false;
+                    break;
+                case 'KeyS':
+                    this.moveBackward = false;
+                    break;
+                case 'KeyA':
+                    this.moveLeft = false;
+                    break;
+                case 'KeyD':
+                    this.moveRight = false;
+                    break;
+            }
+        });
     }
     /**
-     * A function to handle keyUp events
-     * @param {KeyboardEvent} event 
+     * A function to continuously update the player's movement and animation
+     * @param {number} deltaTime 
      */
-    onKeyUp(event) {
+    update(deltaTime) {
 
+        // Update camera position based on debug mode
+        if (this.debugMode) {
+            this.camera.position.set(
+                this.position.x + this.cameraOffset.x,
+                this.position.y + this.cameraOffset.y,
+                this.position.z + this.cameraOffset.z
+            );
+            this.camera.lookAt(this.position);
+        } else {
+            this.camera.position.set(this.position.x, this.position.y + this.height / 2, this.position.z);
+        }
     }
 }
+
 export default Player;
