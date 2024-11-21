@@ -126,6 +126,7 @@ class SceneManager {
                 }
             }
         }
+        this.addCrosshair();
     }
 
     /**
@@ -147,6 +148,28 @@ class SceneManager {
      */
     render() {
         this.renderer.render(this.scene, this.camera);
+    }
+
+    /**
+     * A function which adds a simple snowflake crosshair to the screen 
+     * Credit to rawpixel.com on Freepik
+     * https://www.freepik.com/free-vector/set-snowflakes-christmas-design-vector_3529750.htm#fromView=search&page=1&position=0&uuid=b99359d7-97af-41a7-9335-6be69daef9b5
+     */
+    addCrosshair() {
+        // Create a div for the crosshair
+        var crosshair = document.createElement('div');
+        crosshair.style.position = 'absolute';
+        crosshair.style.top = '50%'; 
+        crosshair.style.left = '50%';
+        crosshair.style.transform = 'translate(-50%, -50%)';
+        crosshair.style.width = '50px';  
+        crosshair.style.height = '50px'; 
+        crosshair.style.backgroundImage = 'url(public/assets/textures/Snowflake_Sprite.png)'; 
+        crosshair.style.backgroundSize = 'contain'; 
+        crosshair.style.backgroundRepeat = 'no-repeat'; 
+        crosshair.style.pointerEvents = 'none'; 
+
+        document.body.appendChild(crosshair);
     }
 }
 
