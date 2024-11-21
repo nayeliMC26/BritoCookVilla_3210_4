@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 class Player {
     /**
      * A function to construct a player
@@ -22,13 +23,20 @@ class Player {
         // Add mesh to the scene
         this.scene.add(this.playerMesh);
         // Position should be relative to the height of the ground the player is on
-        this.position = new THREE.Vector3(0, this.terrain.getHeightAt(this.playerMesh.position.x, this.playerMesh.position.z) + this.height / 2, 0);
+        this.position = new THREE.Vector3(0, this.terrain.getHeightAt(this.playerMesh.position.x, this.playerMesh.position.z) + (this.height / 2), 0);
         this.playerMesh.position.copy(this.position);
+
+        this.controls = new PointerLockControls(this.camera, document.body);  // Attach controls to the camera
+        this.scene.add(this.controls.object);  
+
         // Flags for movement
         this.moveForward = false;
         this.moveBackward = false;
         this.moveLeft = false;
         this.moveRight = false;
+        // Can be tweaked, for now this works
+        this.mouseSensitivity = 0.002;
+
         // Debug mode to make sure the player mesh is spawning in correctly 
         this.debugMode = false;
         // Caemera offset for debug mode
@@ -55,6 +63,9 @@ class Player {
                 case 'KeyD':
                     this.moveRight = true;
                     break;
+                case 'Space':
+                    if (this.isGrounded) this.isJumping = true; // Only jump if grounded
+                    break;
                 case 'KeyT':
                     // Toggling debug mode
                     this.debugMode = !this.debugMode;
@@ -76,9 +87,29 @@ class Player {
                 case 'KeyD':
                     this.moveRight = false;
                     break;
+                case 'Space':
+                    this.isJumping = false;
+                    break;
             }
         });
+
+        // Request pointer lock when the user clicks
+        document.body.addEventListener('click', () => {
+            if (!this.mouseLookEnabled) {
+                this.requestPointerLock();
+            }
+        });
+        document.addEventListener('pointerlockchange', this.onPointerLockChange.bind(this));
     }
+
+    requestPointerLock() {
+        this.controls.lock();  // Lock the pointer
+    }
+
+    onPointerLockChange() {
+        this.mouseLookEnabled = document.pointerLockElement === document.body;
+    }
+
     /**
      * A function to continuously update the player's movement and animation
      * @param {number} deltaTime 
