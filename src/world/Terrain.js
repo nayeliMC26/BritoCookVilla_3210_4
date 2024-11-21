@@ -10,11 +10,37 @@ class Terrain {
         this.blockSize = blockSize;
         this.color = color;
         this.perlin = new Perlin();
+
         this.block = new Block(this.blockSize);
         this.blockLocations = [];
-        this.mesh = new THREE.Group(); // Group to hold all the individual meshes
-        this.blocks = {}; // Store block meshes by their position for easy access
-        this.removedBlocks = new Set(); // Track removed blocks
+        this.topBlocks = [];
+
+        // Create instanced meshes for each block type
+        this.dirtMesh = this.block.getInstancedMesh(
+            "dirt",
+            (this.resolution ** 2 * this.maxHeight) / 2
+        );
+        this.grassMesh = this.block.getInstancedMesh(
+            "grass",
+            (this.resolution ** 2 * this.maxHeight) / 2
+        );
+        this.stoneMesh = this.block.getInstancedMesh(
+            "stone",
+            (this.resolution ** 2 * this.maxHeight) / 2
+        );
+
+        this.stoneMesh.castShadow = true;
+        this.stoneMesh.receiveShadow = true;
+
+        this.dirtMesh.castShadow = true;
+        this.dirtMesh.receiveShadow = true;
+
+        this.grassMesh.castShadow = true;
+        this.grassMesh.receiveShadow = true;
+
+        this.stoneMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        this.dirtMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        this.grassMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
         this.initTerrain();
     }
@@ -24,6 +50,9 @@ class Terrain {
      */
     initTerrain() {
         const center = (this.resolution * this.blockSize) / 2;
+        let stoneIndex = 0;
+        let dirtIndex = 0;
+        let grassIndex = 0;
 
         for (let x = 0; x < this.resolution; x++) {
             for (let z = 0; z < this.resolution; z++) {
@@ -47,133 +76,54 @@ class Terrain {
                 );
 
                 // Create the base layer at y = 0
-                this.createBlock("stone", blockX, 0, blockZ);
+                const matrix = new THREE.Matrix4();
+                matrix.setPosition(blockX, 0, blockZ);
+                this.stoneMesh.setMatrixAt(stoneIndex++, matrix);
+                this.blockLocations.push([blockX, 0, blockZ]);
 
                 // Create additional layers based on height
                 for (let y = 1; y <= height; y++) {
+                    matrix.setPosition(blockX, y * this.blockSize, blockZ);
+                    this.blockLocations.push([
+                        blockX,
+                        y * this.blockSize,
+                        blockZ,
+                    ]);
                     const blockType = this.getBlockType(y);
-                    this.createBlock(blockType, blockX, y * this.blockSize, blockZ);
-                }
 
-                for (let i = 1; i <= height; i++) {
-                    const blockType = this.getBlockType(i);
-                    console.log(blockX, i * this.blockSize, blockZ);
-                    console.log(this.getExposedSides(blockX, i * this.blockSize, blockZ));
-                    const blockMesh = this.block.getMesh(blockType, this.getExposedSides(blockX, i * this.blockSize, blockZ));
-                    blockMesh.position.set(blockX, i * this.blockSize, blockZ);
-                    this.mesh.add(blockMesh);
+                    if (blockType === "stone") {
+                        this.stoneMesh.setMatrixAt(stoneIndex++, matrix);
+                    } else if (blockType === "dirt") {
+                        this.dirtMesh.setMatrixAt(dirtIndex++, matrix);
+                    } else if (blockType === "grass") {
+                        this.grassMesh.setMatrixAt(grassIndex++, matrix);
+                    }
                 }
             }
         }
 
-        // After all blocks are created, check for exposed sides
-        // this.updateExposedSides();
-    }
+        // Update the instance matrices
+        this.stoneMesh.instanceMatrix.needsUpdate = true;
+        this.dirtMesh.instanceMatrix.needsUpdate = true;
+        this.grassMesh.instanceMatrix.needsUpdate = true;
 
-    /**
-     * Function to create and add a block to the terrain
-     */
-    createBlock(type, x, y, z) {
-        // const blockMesh = this.block.getMesh(type, {}); // Initial block without checking exposed sides
-        // blockMesh.position.set(x, y, z);
-        this.blockLocations.push([x, y, z]);
-        // this.blocks[`${x},${y},${z}`] = blockMesh; // Store the block mesh by its position for easy access
-        // this.mesh.add(blockMesh); // Add the mesh to the group
-    }
+        // Create a group to hold all instanced meshes
+        this.mesh = new THREE.Group();
+        this.mesh.add(this.stoneMesh);
+        this.mesh.add(this.dirtMesh);
+        this.mesh.add(this.grassMesh);
 
-    /**
-     * Function to check for exposed sides for each block
-     */
-    getExposedSides(x, y, z) {
-        const exposedSides = {
-            top: false,
-            bottom: false,
-            right: false,
-            left: false,
-            front: false,
-            back: false
-        };
+        // Create a Set for quick lookups
+        const blockSet = new Set(
+            this.blockLocations.map(([x, y, z]) => `${x},${y},${z}`)
+        );
 
-        // Check if there's a block above
-        if (!this.blockLocations.includes([x, y+this.blockSize, z])) {
-            exposedSides.top = true;
+        for (let [x, y, z] of this.blockLocations) {
+            const aboveKey = `${x},${y + this.blockSize},${z}`;
+            if (!blockSet.has(aboveKey)) {
+                this.topBlocks.push([x, y, z]);
+            }
         }
-
-        // Check if there's a block below
-        if (!this.blockLocations.includes([x, y-this.blockSize, z])) {
-            exposedSides.bottom = true;
-        }
-
-        // Check if there's a block to the right
-        if (!this.blockLocations.includes([x+this.blockSize, y, z])) {
-            exposedSides.right = true;
-        }
-
-        // Check if there's a block to the left
-        if (!this.blockLocations.includes([x-this.blockSize, y, z])) {
-            exposedSides.left = true;
-        }
-
-        // Check if there's a block in front
-        if (!this.blockLocations.includes([x, y, z+this.blockSize])) {
-            exposedSides.front = true;
-        }
-
-        // Check if there's a block behind
-        if (!this.blockLocations.includes([x, y, z-this.blockSize])) {
-            exposedSides.back = true;
-        }
-
-        return exposedSides;
-    }
-
-    /**
-     * Function to update the exposed sides and apply textures
-     */
-    // updateExposedSides() {
-    //     // Iterate through each block location and update exposed sides
-    //     for (let i = 0; i < this.blockLocations.length; i++) {
-    //         const [x, y, z] = this.blockLocations[i];
-    //         const exposedSides = this.getExposedSides(x, y, z);
-
-    //         const blockType = this.getBlockType(Math.round(y / this.blockSize));
-    //         const updatedBlockMesh = this.block.getMesh(blockType, exposedSides);
-
-    //         // Update the position of the existing block mesh (preserving the position)
-    //         updatedBlockMesh.position.set(x, y, z);
-
-    //         // Replace the old block mesh in the scene
-    //         this.mesh.children[i] = updatedBlockMesh;
-    //         this.blocks[`${x},${y},${z}`] = updatedBlockMesh; // Update the block in the dictionary
-    //     }
-    // }
-
-    /**
-     * Function to remove a block - example generated by chat for sake of texture updates
-     * Completely rework this but look at how it interacts with the update below
-     */
-    // removeBlock(x, y, z) {
-    //     const blockKey = `${x},${y},${z}`;
-    //     const blockMesh = this.blocks[blockKey];
-
-    //     if (blockMesh) {
-    //         this.mesh.remove(blockMesh); // Remove block mesh from the scene
-    //         delete this.blocks[blockKey]; // Remove from the blocks dictionary
-    //         this.blockLocations = this.blockLocations.filter(([bx, by, bz]) => bx !== x || by !== y || bz !== z); // Remove from block locations
-    //         // this.removedBlocks.add(blockKey); // Track that the block was removed
-    //     }
-    // }
-
-    /**
-     * Function to update block textures if blocks were removed
-     * Example generated by chat essentially if removed, call updateexposed sides
-     */
-    update() {
-        // if (this.removedBlocks.size > 0) {
-        //     // If any blocks were removed, update exposed sides of remaining blocks
-        //     this.updateExposedSides();
-        //     this.removedBlocks.clear(); // Reset removed blocks set
-        // }
     }
 
     /**
@@ -235,6 +185,10 @@ class Terrain {
 
     getBlockLocations() {
         return this.blockLocations;
+    }
+
+    getTopBlocks() {
+        return this.topBlocks;
     }
 
     /**

@@ -36,12 +36,26 @@ class SceneManager {
         });
         this.terrain.addToScene(this.scene);
 
+        // Helper function to compare arrays by value
+        function isPositionInArray(position, array) {
+            return array.some(
+                ([ax, ay, az]) =>
+                    ax === position[0] &&
+                    ay === position[1] &&
+                    az === position[2]
+            );
+        }
+
+        // Create array to store tree locations
+        this.treeLocation = [];
+
         // Generate trees using the three grammars
         const blockArray = this.terrain.getBlockLocations();
+        const topBlocks = this.terrain.getTopBlocks(); // Pre-fetch top blocks
         const treeTypes = [1, 2, 3]; // Grammar types
 
         for (let treeType of treeTypes) {
-            var count = 0;
+            let count = 0;
             while (count < 10) {
                 // Generate 10 trees per type
                 const randomIndex = Math.floor(
@@ -50,16 +64,28 @@ class SceneManager {
                 const [x, y, z] = blockArray[randomIndex];
 
                 // Ensure the tree is placed only on blocks with an exposed top
-                const exposedSides = this.terrain.getExposedSides(x, y, z);
-                if (exposedSides.top) {
-                    const tree = new Tree(
-                        new THREE.Vector3(x, y + this.terrain.blockSize, z),
-                        this.terrain.blockSize,
-                        2, // Number of iterations
-                        Math.PI / 2, // Angle for branching
-                        treeType // Grammar type
-                    );
-                    tree.addToScene(this.scene);
+                if (isPositionInArray([x, y, z], topBlocks)) {
+                    if (treeType < 3) {
+                        const tree = new Tree(
+                            new THREE.Vector3(x, y, z),
+                            this.terrain.blockSize,
+                            2, // Number of iterations
+                            Math.PI / 2, // Angle for branching
+                            treeType, // Grammar type
+                            true
+                        );
+                        tree.addToScene(this.scene);
+                    } else {
+                        const tree = new Tree(
+                            new THREE.Vector3(x, y, z),
+                            this.terrain.blockSize,
+                            2, // Number of iterations
+                            Math.PI / 2, // Angle for branching
+                            treeType // Grammar type
+                        );
+                        tree.addToScene(this.scene);
+                    }
+                    
                     count++;
                 }
             }
@@ -68,7 +94,8 @@ class SceneManager {
 
     // Function to update the scene
     update(deltaTime) {
-        this.terrain.update();
+        // Update the terrain to only display visible blocks
+
         // Update sun and moon positions
         this.sun.animate(deltaTime);
         this.moon.animate(deltaTime);
