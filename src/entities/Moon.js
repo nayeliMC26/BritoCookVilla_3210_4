@@ -22,12 +22,12 @@ export default class Moon {
 
     #initMoon() {
         // Making the moon
-        this.radius = 50;
+        this.radius = 100;
         this.geometry = new THREE.BoxGeometry(this.radius * 2, this.radius * 2, this.radius * 2);
-        this.material = new THREE.MeshBasicMaterial({ color: 0xF1EB99 });
+        this.material = new THREE.MeshBasicMaterial({ color: 0xF1EB99, fog: false });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         // Positionning the moon
-        this.mesh.position.set(1000, 0, 0);
+        this.mesh.position.set(2500, 0, 0);
         // Rotating it so that it starts below the horizon
         this.moonRise = Math.asin(-this.radius / (this.mesh.position.x - 10)); // Starting angle
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(this.moonRise);
@@ -40,7 +40,7 @@ export default class Moon {
         this.currentA = this.moonSet;
         this.percentage = 1;
         // How much a rotation should take for 15 degrees every 10 seconds
-        this.time = (this.moonSet / 0.261799) * 1
+        this.time = (this.moonSet / 0.261799) * 10
 
         // Starting with the moon light as purple
         this.color = new THREE.Color(0.416, 0.051, 0.514);
@@ -98,7 +98,7 @@ export default class Moon {
     animate(time) {
         if (isNaN(time)) return;
         // The angle that were going to rotate the moon by
-        var angle = this.moonRise + ((this.moonSet / this.time) * (time + this.time) );
+        var angle = this.moonRise + ((this.moonSet / this.time) * (time + this.time));
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(angle - this.currentA);
         this.percentage = ((angle - this.moonRise) / this.moonSet) % 2;
         // Rotate the moon

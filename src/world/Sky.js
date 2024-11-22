@@ -3,15 +3,15 @@ import * as THREE from "three";
 
 export default class Sky {
 
-    constructor(scene, renderer, time) {
+    constructor(scene, renderer, time, width) {
         this.scene = scene;
         this.renderer = renderer;
         // How much both day + night take
         this.time = time;
+        // Width of the world
+        this.width = width;
         // Percentage of time passed
         this.percentage;
-        // Parameters for sky geometry
-        this.radius, this.geometry, this.material, this.mesh, this.color;
         // List of colors that the sky will go through
         this.palette = [
             { r: 1, g: 0.655, b: 0 }, // Orange
@@ -20,32 +20,20 @@ export default class Sky {
             { r: 0.859, g: 0.388, b: 0.533 }, // Soft-Pink
             { r: 0, g: 0, b: 0.015 } // Dark Blue
         ];
+        this.color = new THREE.Color(1, 1, 1);
         // The amount of snowflakes 
-        this.snowFlakeAmount = 3000;
-        // Making sky
-        this.#initSky();
+        this.snowFlakeAmount = 1000;
         // Making Snow
         this.#initSnow();
-    }
-
-    #initSky() {
-        // Starting with the sky colored red
-        this.color = new THREE.Color(1, 0, 0);
-        // Making the sky
-        this.radius = 1000;
-        this.geometry = new THREE.SphereGeometry(this.radius, 32, 32);
-        this.material = new THREE.MeshBasicMaterial({ color: this.color, side: THREE.DoubleSide });
-        this.mesh = new THREE.Mesh(this.geometry, this.material);
-        //this.scene.add(this.mesh);
     }
 
     #initSnow() {
         // Getting random x, y, z in [-this.radius, this.radius] 
         var vertices = [];
         for (var i = 0; i < this.snowFlakeAmount; i++) {
-            const x = (Math.random() - 0.5) * this.radius;
-            const y = (Math.random() - 0.5) * this.radius;
-            const z = (Math.random() - 0.5) * this.radius;
+            const x = (Math.random() - 0.5) * this.width;
+            const y = (Math.random() - 0.5) * this.width;
+            const z = (Math.random() - 0.5) * this.width;
             vertices.push(x, y, z);
         }
         // One bufferGeometry for better performace
@@ -59,6 +47,8 @@ export default class Sky {
         });
         this.snow = new THREE.Points(this.snowflakes, material);
         this.scene.add(this.snow);
+        console.log("snow")
+        console.log()
     }
 
     #updateColor() {
@@ -114,15 +104,15 @@ export default class Sky {
         // Move each snowflake
         for (var i = 0; i < this.snowFlakeAmount * 3; i += 3) {
             // move down a snowflake
-            vertices[i] += 0.1 * Math.sin((i / 30) + (time / 40)); // X axis
-            vertices[i + 1] -= 0.1 * Math.cos((i / 150) + (time / 70)) + 0.2; // Y axis
-            vertices[i + 2] += 0.1 * Math.cos((i / 50) + (time / 20)); // Z axis
+            vertices[i] += 0.2 * Math.sin((i / 30) + (time / 40)); // X axis
+            vertices[i + 1] -= 0.2 * Math.cos((i / 150) + (time / 70)) + 0.6; // Y axis
+            vertices[i + 2] += 0.2 * Math.cos((i / 50) + (time / 20)); // Z axis
 
             // Recycle after it falls under the ground
             if (vertices[i + 1] < -50) {
-                vertices[i] = (Math.random() - 0.5) * 2 * this.radius;
-                vertices[i + 1] = (Math.random() - 0.5) * 2 * this.radius;
-                vertices[i + 2] = (Math.random() - 0.5) * 2 * this.radius;
+                vertices[i] = (Math.random() - 0.5) * this.width;
+                vertices[i + 1] = (Math.random() - 0.5) * this.width;
+                vertices[i + 2] = (Math.random() - 0.5) * this.width;
             }
         }
         // Updating the snowflake location

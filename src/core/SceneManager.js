@@ -42,7 +42,6 @@ class SceneManager {
         // Sun and Moon objects / lighting
         this.sun = new Sun(this.scene, this.colorAmbientLight);
         this.moon = new Moon(this.scene, this.colorAmbientLight);
-        this.sky = new Sky(this.scene, this.renderer, this.sun.getDayLength() * 2);
 
         // Create the terrain using a timeout method to not stall loading 
         setTimeout(() => {
@@ -57,8 +56,14 @@ class SceneManager {
             // Create player and add it to the scene
             this.player = new Player(this.scene, this.camera, this.terrain);
 
+            const width = this.terrain.blockSize * this.terrain.resolution
+            this.sky = new Sky(this.scene, this.renderer, this.sun.getDayLength() * 2, width);
+
+            // console.log(this.terrain.blockSize * this.terrain.resolution)
+
             this.addTrees();
         }, 100); // Delay terrain generation by 100ms to avoid blocking initial scene load
+
 
         // Handle window resizing
         window.addEventListener('resize', this.onWindowResize.bind(this), false);

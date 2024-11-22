@@ -20,12 +20,12 @@ class Main {
     }
     // Animation loop
     animate(time) {
-        this.stats.begin();
+        // this.stats.begin();
         this.sceneManager.update(time / 1000);
 
         this.sceneManager.renderer.render(this.sceneManager.scene, this.sceneManager.camera);
 
-        this.stats.end();
+        this.stats.update();
         requestAnimationFrame(this.animate);
 
     }
