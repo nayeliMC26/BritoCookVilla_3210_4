@@ -1,136 +1,152 @@
-import * as THREE from 'three';
-import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import * as THREE from "three";
+import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
+
 class Player {
-    /**
-     * A function to construct a player
-     * @param {THREE.Scene} scene 
-     * @param {THREE.Camera} camera 
-     * @param {Object} terrain 
-     */
     constructor(scene, camera, terrain) {
         this.scene = scene;
         this.camera = camera;
         this.terrain = terrain;
-        // Height of the player, 2 blocks tall for a block size of 10
-        this.height = 20; 
-        // i get impatient 
-        this.speed = 90; 
-        this.velocity = new THREE.Vector3(); 
-        // Creating a player mesh for debugging and temporary visualization
-        const geometry = new THREE.BoxGeometry(this.height / 2, this.height, this.height / 2);
+        this.height = 20;
+        this.speed = 30;
+        this.velocity = new THREE.Vector3();
+        const geometry = new THREE.BoxGeometry(
+            this.height / 2,
+            this.height,
+            this.height / 2
+        );
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         this.playerMesh = new THREE.Mesh(geometry, material);
-        // Add mesh to the scene
         this.scene.add(this.playerMesh);
-        // Position should be relative to the height of the ground the player is on
-        this.position = new THREE.Vector3(0, this.terrain.getHeightAt(this.playerMesh.position.x, this.playerMesh.position.z) + (this.height), 0);
+
+        this.position = new THREE.Vector3(
+            0,
+            this.terrain.getHeightAt(
+                this.playerMesh.position.x,
+                this.playerMesh.position.z
+            ) + this.height,
+            0
+        );
         this.playerMesh.position.copy(this.position);
 
-        this.controls = new PointerLockControls(this.camera, document.body);  // Attach controls to the camera
-        this.scene.add(this.controls.object);  
+        this.controls = new PointerLockControls(this.camera, document.body);
+        this.scene.add(this.controls.object);
 
-        // Flags for movement
         this.moveForward = false;
         this.moveBackward = false;
         this.moveLeft = false;
         this.moveRight = false;
-        // Can be tweaked, for now this works
         this.mouseSensitivity = 0.002;
 
-        // Debug mode to make sure the player mesh is spawning in correctly 
         this.debugMode = false;
-        // Caemera offset for debug mode
-        this.cameraOffset = new THREE.Vector3(0, 20, -30); 
+        this.cameraOffset = new THREE.Vector3(0, 20, -30);
 
         this.keyboardControls();
     }
-    /**
-     * A function to handle keyboard events
-     * 
-     */
+
     keyboardControls() {
-        document.addEventListener('keydown', (event) => {
+        document.addEventListener("keydown", (event) => {
             switch (event.code) {
-                case 'KeyW':
+                case "KeyW":
                     this.moveForward = true;
                     break;
-                case 'KeyS':
+                case "KeyS":
                     this.moveBackward = true;
                     break;
-                case 'KeyA':
+                case "KeyA":
                     this.moveLeft = true;
                     break;
-                case 'KeyD':
+                case "KeyD":
                     this.moveRight = true;
                     break;
-                case 'Space':
-                    if (this.isGrounded) this.isJumping = true; // Only jump if grounded
+                case "Space":
+                    if (this.isGrounded) this.isJumping = true;
                     break;
-                case 'KeyT':
-                    // Toggling debug mode
+                case "KeyT":
                     this.debugMode = !this.debugMode;
                     break;
             }
         });
 
-        document.addEventListener('keyup', (event) => {
+        document.addEventListener("keyup", (event) => {
             switch (event.code) {
-                case 'KeyW':
+                case "KeyW":
                     this.moveForward = false;
                     break;
-                case 'KeyS':
+                case "KeyS":
                     this.moveBackward = false;
                     break;
-                case 'KeyA':
+                case "KeyA":
                     this.moveLeft = false;
                     break;
-                case 'KeyD':
+                case "KeyD":
                     this.moveRight = false;
                     break;
-                case 'Space':
+                case "Space":
                     this.isJumping = false;
                     break;
             }
         });
 
-        // Request pointer lock when the user clicks
-        document.body.addEventListener('click', () => {
+        document.body.addEventListener("click", () => {
             if (!this.mouseLookEnabled) {
                 this.requestPointerLock();
             }
         });
-        document.addEventListener('pointerlockchange', this.onPointerLockChange.bind(this));
+
+        document.addEventListener(
+            "pointerlockchange",
+            this.onPointerLockChange.bind(this)
+        );
     }
 
     requestPointerLock() {
-        this.controls.lock();  // Lock the pointer
+        this.controls.lock();
     }
 
     onPointerLockChange() {
         this.mouseLookEnabled = document.pointerLockElement === document.body;
     }
 
-    /**
-     * A function to continuously update the player's movement and animation
-     * @param {number} deltaTime 
-     */
     update(deltaTime) {
-        var moveSpeed = this.speed * deltaTime;
-        // Reset velocity every frame to provent player infinitely moving 
-        this.velocity.x = 0;
-        this.velocity.z = 0;
-        // Very basic movement logic
-        if (this.moveForward){this.velocity.z = -moveSpeed;}
-        if (this.moveBackward){this.velocity.z = moveSpeed;}
-        if (this.moveLeft){this.velocity.x = -moveSpeed;}
-        if (this.moveRight){this.velocity.x = moveSpeed;}
-        // Add velocity to the position
-        this.position.add(this.velocity);
-        // Update the mesh to move when the player moves
-        this.playerMesh.position.copy(this.position);
-        this.camera.position.set(this.position.x, this.position.y + this.height / 2, this.position.z);
+        const moveSpeed = this.speed * deltaTime;
+        this.velocity.set(0, 0, 0);
 
-        // Update camera position based on debug mode
+        // Calculate movement direction
+        const forward = new THREE.Vector3();
+        const right = new THREE.Vector3();
+
+        this.camera.getWorldDirection(forward); // Forward direction
+        forward.y = 0; // Prevent flying up or down
+        forward.normalize();
+
+        right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize(); // Right direction
+
+        if (this.moveForward) {
+            this.velocity.add(forward);
+        }
+        if (this.moveBackward) {
+            this.velocity.add(forward.negate());
+        }
+        if (this.moveLeft) {
+            this.velocity.add(right.negate());
+        }
+        if (this.moveRight) {
+            this.velocity.add(right);
+        }
+
+        this.velocity.normalize().multiplyScalar(moveSpeed);
+
+        // Update position
+        this.position.add(this.velocity);
+
+        // Ensure player stays on terrain
+        this.position.y = this.terrain.getHeightAt(
+            this.position.x,
+            this.position.z
+        ) + this.height;
+
+        this.playerMesh.position.copy(this.position);
+
         if (this.debugMode) {
             this.camera.position.set(
                 this.position.x + this.cameraOffset.x,
@@ -139,7 +155,11 @@ class Player {
             );
             this.camera.lookAt(this.position);
         } else {
-            this.camera.position.set(this.position.x, this.position.y + this.height / 2, this.position.z);
+            this.camera.position.set(
+                this.position.x,
+                this.position.y + this.height / 2,
+                this.position.z
+            );
         }
     }
 }

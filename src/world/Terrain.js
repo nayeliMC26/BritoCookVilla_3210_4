@@ -1,6 +1,6 @@
-import * as THREE from 'three';
-import Perlin from '/src/utils/perlin.js';
-import Block from './Block';
+import * as THREE from "three";
+import Perlin from "/src/utils/perlin.js";
+import Block from "./Block";
 
 /**
  * Terrain class to generate and manage the terrain of the game world.
@@ -64,10 +64,18 @@ class Terrain {
                 // Calculate noise-based height
                 const normalizedX = (blockX / this.size) * 2 - 1;
                 const normalizedZ = (blockZ / this.size) * 2 - 1;
-                let noiseValue = this.perlin.noise(normalizedX * 10, normalizedZ * 10);
+                let noiseValue = this.perlin.noise(
+                    normalizedX * 10,
+                    normalizedZ * 10
+                );
                 noiseValue = this.smoothTerrain(x, z, noiseValue);
-                const terrainHeight = Math.round(Math.abs(noiseValue * this.maxHeight));
-                const height = Math.max(0, Math.min(terrainHeight, this.maxHeight));
+                const terrainHeight = Math.round(
+                    Math.abs(noiseValue * this.maxHeight)
+                );
+                const height = Math.max(
+                    0,
+                    Math.min(terrainHeight, this.maxHeight)
+                );
 
                 // Create the base layer at y = 0
                 const matrix = new THREE.Matrix4();
@@ -130,15 +138,25 @@ class Terrain {
         this.lod = new THREE.LOD();
 
         // Full-detail terrain (close to the camera)
-        this.lod.addLevel(this.mesh, 0); 
+        this.lod.addLevel(this.mesh, 0);
 
         // Low-detail terrain (further from the camera)
-        const lowDetailGeometry = new THREE.PlaneGeometry(this.size, this.size, 10, 10);
-        const lowDetailMaterial = new THREE.MeshBasicMaterial({ color: 0x8b4513 });
-        const lowDetailMesh = new THREE.Mesh(lowDetailGeometry, lowDetailMaterial);
+        const lowDetailGeometry = new THREE.PlaneGeometry(
+            this.size,
+            this.size,
+            10,
+            10
+        );
+        const lowDetailMaterial = new THREE.MeshBasicMaterial({
+            color: 0x8b4513,
+        });
+        const lowDetailMesh = new THREE.Mesh(
+            lowDetailGeometry,
+            lowDetailMaterial
+        );
         lowDetailMesh.rotation.x = -Math.PI / 2;
 
-        this.lod.addLevel(lowDetailMesh, 3000); 
+        this.lod.addLevel(lowDetailMesh, 3000);
 
         this.mesh.add(this.lod);
     }
@@ -151,15 +169,33 @@ class Terrain {
         let totalNoise = currentHeight;
         let neighborCount = 0;
 
-        for (let offsetX = -smoothingRadius; offsetX <= smoothingRadius; offsetX++) {
-            for (let offsetZ = -smoothingRadius; offsetZ <= smoothingRadius; offsetZ++) {
+        for (
+            let offsetX = -smoothingRadius;
+            offsetX <= smoothingRadius;
+            offsetX++
+        ) {
+            for (
+                let offsetZ = -smoothingRadius;
+                offsetZ <= smoothingRadius;
+                offsetZ++
+            ) {
                 if (offsetX === 0 && offsetZ === 0) continue;
                 const neighborX = currentX + offsetX;
                 const neighborZ = currentZ + offsetZ;
-                if (neighborX >= 0 && neighborZ >= 0 && neighborX < this.resolution && neighborZ < this.resolution) {
-                    const normalizedNeighborX = (neighborX / (this.size / 2)) * 2 - 1;
-                    const normalizedNeighborZ = (neighborZ / (this.size / 2)) * 2 - 1;
-                    const neighborNoise = this.perlin.noise(normalizedNeighborX * 4, normalizedNeighborZ * 4);
+                if (
+                    neighborX >= 0 &&
+                    neighborZ >= 0 &&
+                    neighborX < this.resolution &&
+                    neighborZ < this.resolution
+                ) {
+                    const normalizedNeighborX =
+                        (neighborX / (this.size / 2)) * 2 - 1;
+                    const normalizedNeighborZ =
+                        (neighborZ / (this.size / 2)) * 2 - 1;
+                    const neighborNoise = this.perlin.noise(
+                        normalizedNeighborX * 4,
+                        normalizedNeighborZ * 4
+                    );
                     totalNoise += neighborNoise;
                     neighborCount++;
                 }
@@ -203,7 +239,6 @@ class Terrain {
         this.grassMesh.frustumCulled = true;
 
         scene.add(this.mesh);
-
     }
 
     /**
@@ -213,16 +248,15 @@ class Terrain {
      * @returns {number} The height of the terrain at the specified position.
      */
     getHeightAt(x, z) {
-        // Normalize the input x and z coordinates
-        const normalizedX = (x / this.size) * 2 - 1;
-        const normalizedZ = (z / this.size) * 2 - 1;
+        // Find the block in the topBlocks array that matches the (x, z) coordinates
+        const block = this.topBlocks.find(
+            ([blockX, blockY, blockZ]) =>
+                Math.abs(blockX - x) < this.blockSize / 2 &&
+                Math.abs(blockZ - z) < this.blockSize / 2
+        );
 
-        // Get the Perlin noise value
-        let noiseValue = this.perlin.noise(normalizedX * 10, normalizedZ * 10);
-
-        // Calculate the terrain height
-        const terrainHeight = Math.round(Math.abs(noiseValue * this.maxHeight));
-        return terrainHeight;
+        // If a block is found, return its height (y value), otherwise return 0
+        return block ? block[1] : 0;
     }
 }
 
