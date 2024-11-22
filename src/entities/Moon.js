@@ -24,7 +24,7 @@ export default class Moon {
         // Making the moon
         this.radius = 50;
         this.geometry = new THREE.BoxGeometry(this.radius * 2, this.radius * 2, this.radius * 2);
-        this.material = new THREE.MeshBasicMaterial({ color: 0xF1EB99 });
+        this.material = new THREE.MeshBasicMaterial({ color: 0xF1EB99, fog: false });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         // Positionning the moon
         this.mesh.position.set(1000, 0, 0);

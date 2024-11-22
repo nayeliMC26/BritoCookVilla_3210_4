@@ -184,10 +184,10 @@ class SceneManager {
         crosshair.style.top = "50%";
         crosshair.style.left = "50%";
         crosshair.style.transform = "translate(-50%, -50%)";
-        crosshair.style.width = "37.5px";
-        crosshair.style.height = "37.5px";
+        crosshair.style.width = "25px";
+        crosshair.style.height = "25px";
         crosshair.style.backgroundImage =
-            "url(public/assets/textures/Snowflake_Sprite.png)";
+            "url(./assets/textures/Snowflake_Sprite.png)";
         crosshair.style.backgroundSize = "contain";
         crosshair.style.backgroundRepeat = "no-repeat";
         crosshair.style.pointerEvents = "none";

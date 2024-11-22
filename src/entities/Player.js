@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
-import { Group } from "three/examples/jsm/libs/tween.module.js";
 
 class Player {
     constructor(scene, camera, terrain) {
@@ -10,11 +9,6 @@ class Player {
         this.height = 15;
         this.speed = 30;
         this.velocity = new THREE.Vector3();
-        const geometry = new THREE.BoxGeometry(
-            this.height / 2,
-            this.height,
-            this.height / 2
-        );
 
         this.playerMesh = new THREE.Group();
 
@@ -87,6 +81,32 @@ class Player {
         this.previousPosition = this.position.clone(); // Store previous position for collision resolution
 
         this.keyboardControls();
+        this.createFlashlight();
+    }
+    createFlashlight(){
+        var flashlightMesh = new THREE.Group();
+        var flashlightBodyGeometry = new THREE.BoxGeometry(1.5, 4, 1.5);
+        var flashlightHeadGeometry = new THREE.BoxGeometry(2, 1, 2);
+        var flashlightMaterial = new THREE.MeshPhongMaterial({color: 0x404040})
+
+        var flashlightHead = new THREE.Mesh(flashlightHeadGeometry, flashlightMaterial);
+        flashlightHead.position.set(5, -2, -7);
+        flashlightHead.rotation.set(0, Math.PI / 2, Math.PI / 2);
+
+        var flashlightBody = new THREE.Mesh(flashlightBodyGeometry, flashlightMaterial);
+        flashlightBody.position.set(5, -2, -5);
+        flashlightBody.rotation.set(0, Math.PI / 2, Math.PI / 2);
+
+        flashlightMesh.add(flashlightHead);
+        flashlightMesh.add(flashlightBody);
+        this.camera.add(flashlightMesh);
+
+        this.illumination = new THREE.SpotLight(0xfff4bd, 10000, 1000, Math.PI / 6, 0.5, 2);
+        this.camera.add(this.illumination);
+        this.camera.add(this.illumination.target); 
+        this.illumination.position.set(0, 0, 0); 
+        this.illumination.target.position.set(0, 0, -1); 
+
     }
 
     keyboardControls() {
@@ -109,6 +129,9 @@ class Player {
                     break;
                 case "KeyT":
                     this.debugMode = !this.debugMode;
+                    break;
+                case "KeyF":
+                    this.illumination.visible = !this.illumination.visible; 
                     break;
             }
         });
@@ -243,6 +266,7 @@ class Player {
 
         // Update bounding box for rendering/debugging
         this.playerBoundingBox.setFromObject(this.playerMesh);
+
     }
 }
 

@@ -29,7 +29,7 @@ export default class Sun {
             this.radius * 2,
             this.radius * 2
         );
-        this.material = new THREE.MeshBasicMaterial({ color: this.color });
+        this.material = new THREE.MeshBasicMaterial({ color: this.color, fog: false });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         // Positionning the sun
         this.mesh.position.set(1000, 0, 0);
