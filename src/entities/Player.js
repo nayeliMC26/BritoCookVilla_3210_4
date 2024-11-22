@@ -40,6 +40,8 @@ class Player {
         this.debugMode = false;
         this.cameraOffset = new THREE.Vector3(0, 20, -30);
 
+        this.time = 0;
+
         this.keyboardControls();
     }
 
@@ -107,7 +109,10 @@ class Player {
         this.mouseLookEnabled = document.pointerLockElement === document.body;
     }
 
-    update(deltaTime) {
+    update(time) {
+        const deltaTime = time - this.time;
+        this.time = time;
+
         const moveSpeed = this.speed * deltaTime;
         this.velocity.set(0, 0, 0);
 

@@ -19,12 +19,9 @@ class Main {
         this.animate();
     }
     // Animation loop
-    animate() {
+    animate(time) {
         this.stats.begin();
-
-        const deltaTime = this.clock.getDelta();
-
-        this.sceneManager.update(deltaTime);
+        this.sceneManager.update(time / 1000);
 
         this.sceneManager.renderer.render(this.sceneManager.scene, this.sceneManager.camera);
 
