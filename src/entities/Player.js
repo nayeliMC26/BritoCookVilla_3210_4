@@ -10,6 +10,8 @@ class Player {
         this.speed = 30;
         this.velocity = new THREE.Vector3();
 
+        this.bobCounter = 0;
+
         this.playerMesh = new THREE.Group();
 
         const material = new THREE.MeshBasicMaterial({ color: 0x000000, colorWrite: false, depthWrite: false });
@@ -251,9 +253,10 @@ class Player {
             this.moveLeft ||
             this.moveRight
         ) {
+            this.bobCounter++;
             this.camera.position.set(
                 this.position.x,
-                this.position.y + this.height / 2 + (Math.random() > 0.9),
+                this.position.y + this.height / 2 + (Math.sin(this.bobCounter / 2)),
                 this.position.z
             );
         } else {
