@@ -2,12 +2,12 @@ import * as THREE from 'three';
 
 class Materials {
     MATERIALS = {
-        ICE: "../../Ice.jpg",
-        SIDE: "../../Dirt_Side.jpg",
-        SNOW: "../../Snow.jpg",
-        SPRUCELOG: "../../Spruce_Log.jpg",
-        SPRUCETOP: "../../Spruce_Top.jpg",
-        LEAVES: "../../Leaves.jpg"
+        ICE: "./assets/textures/Ice.jpg",
+        SIDE: "./assets/textures/Dirt_Side.jpg",
+        SNOW: "./assets/textures/Snow.jpg",
+        SPRUCELOG: "./assets/textures/Spruce_Log.jpg",
+        SPRUCETOP: "./assets/textures/Spruce_Top.jpg",
+        LEAVES: "./assets/textures/Leaves.jpg"
     }
 
     constructor() {

@@ -3,7 +3,7 @@ import * as THREE from "three";
 export default class Sun {
     constructor(scene, light) {
         this.scene = scene;
-        // Ambinet light
+        // Ambient light
         this.ambientLight = light;
         // Parameters for sun geometry
         this.radius, this.geometry, this.material, this.mesh, this.color;
@@ -11,8 +11,8 @@ export default class Sun {
         this.sunRise, this.sunSet, this.currentA;
         // How long the night is
         this.time;
-        // Intesity of ambient light
-        this.intesity;
+        // Intensity of ambient light
+        this.intensity;
         // Percentage of day time
         this.percentage = 0;
         // Making sun
@@ -43,10 +43,10 @@ export default class Sun {
         // How much a rotation should take for 15 degrees every 10 seconds
         this.time = (this.sunSet / 0.261799) * 1
 
-        // Max ambient light intesity
-        this.intesity = this.ambientLight.intensity;
+        // Max ambient light intensity
+        this.intensity = this.ambientLight.intensity;
         // Sun light (half intensity to not overide ambinet light)
-        this.directionalLight = new THREE.DirectionalLight(0x606060, this.intesity / 2);
+        this.directionalLight = new THREE.DirectionalLight(0x606060, this.intensity / 2);
         this.directionalLight.castShadow = true;
         this.directionalLight.shadow.mapSize.width = 2048; // Higher values = better shadow quality
         this.directionalLight.shadow.mapSize.height = 2048;
@@ -104,10 +104,10 @@ export default class Sun {
     #updateIntensity() {
         switch (true) {
             case (this.percentage <= .05): // Increase the light early
-                this.ambientLight.intensity = (this.intesity / 2) + ((this.intesity / 2) * (this.percentage / .05));
+                this.ambientLight.intensity = (this.intensity / 2) + ((this.intensity / 2) * (this.percentage / .05));
                 break;
             case (this.percentage > .95 && this.percentage <= 1): // Decreasing the light late
-                this.ambientLight.intensity = this.intesity - ((this.intesity / 2) * ((this.percentage - .95) / .05));
+                this.ambientLight.intensity = this.intensity - ((this.intensity / 2) * ((this.percentage - .95) / .05));
                 break;
         }
     }
