@@ -184,7 +184,7 @@ class Player {
         } else if (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight) {
             this.camera.position.set(
                 this.position.x,
-                (this.position.y + this.height / 2) + Math.random(),
+                (this.position.y + this.height / 2) + (Math.random() > 0.9),
                 this.position.z
             );
         } else {

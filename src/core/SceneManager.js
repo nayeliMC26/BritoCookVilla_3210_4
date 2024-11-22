@@ -4,7 +4,6 @@ import Moon from "../entities/Moon";
 import Terrain from "/src/world/Terrain.js";
 import Player from "../entities/Player";
 import Tree from "../entities/Tree";
-import Player from '../entities/Player';
 
 /* Class to handle creating the scene and updating it */
 class SceneManager {
