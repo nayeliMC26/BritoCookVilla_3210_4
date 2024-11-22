@@ -180,7 +180,7 @@ class Tree {
      * Add bunchy leaves at the given position
      */
     addBunchyLeaves(position, leafIndex) {
-        const numberOfLeaves = 50;
+        const numberOfLeaves = 70;
         const leafRadius = this.blockSize * 5;
 
         for (let i = 0; i < numberOfLeaves; i++) {
