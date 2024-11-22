@@ -6,7 +6,7 @@ class Player {
         this.scene = scene;
         this.camera = camera;
         this.terrain = terrain;
-        this.height = 20;
+        this.height = 15;
         this.speed = 30;
         this.velocity = new THREE.Vector3();
         const geometry = new THREE.BoxGeometry(
