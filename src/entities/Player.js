@@ -14,7 +14,7 @@ class Player {
             this.height,
             this.height / 2
         );
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const material = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
         this.playerMesh = new THREE.Mesh(geometry, material);
         this.scene.add(this.playerMesh);
 
@@ -181,6 +181,12 @@ class Player {
                 this.position.z + this.cameraOffset.z
             );
             this.camera.lookAt(this.position);
+        } else if (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight) {
+            this.camera.position.set(
+                this.position.x,
+                (this.position.y + this.height / 2) + Math.random(),
+                this.position.z
+            );
         } else {
             this.camera.position.set(
                 this.position.x,
