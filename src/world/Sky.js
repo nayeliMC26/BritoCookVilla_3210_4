@@ -20,7 +20,7 @@ export default class Sky {
             { r: 0, g: 0, b: 0.015 } // Dark Blue
         ];
         // The amount of snowflakes 
-        this.snowFlakeAmount = 2500;
+        this.snowFlakeAmount = 3000;
         // Making sky
         this.#initSky();
         // Making Snow
@@ -31,8 +31,8 @@ export default class Sky {
         // Starting with the sky colored red
         this.color = new THREE.Color(1, 0, 0);
         // Making the sky
-        this.radius = 500;
-        this.geometry = new THREE.BoxGeometry(this.radius * 2, this.radius * 2, this.radius * 2);
+        this.radius = 1000;
+        this.geometry = new THREE.SphereGeometry(this.radius, 32, 32);
         this.material = new THREE.MeshBasicMaterial({ color: this.color, side: THREE.DoubleSide });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.scene.add(this.mesh);
@@ -113,9 +113,9 @@ export default class Sky {
         // Move each snowflake
         for (var i = 0; i < this.snowFlakeAmount * 3; i += 3) {
             // move down a snowflake
-            vertices[i] += 0.1 * Math.sin(i / 30 + time / 40); // X axis
-            vertices[i + 1] -= 0.1 * Math.cos(i / 150 + time / 70) + 0.2; // Y axis
-            vertices[i + 2] += 0.1 * Math.cos(i / 50 + time / 20); // Z axis
+            vertices[i] += 0.1 * Math.sin((i / 30) + (time / 40)); // X axis
+            vertices[i + 1] -= 0.1 * Math.cos((i / 150) + (time / 70)) + 0.2; // Y axis
+            vertices[i + 2] += 0.1 * Math.cos((i / 50) + (time / 20)); // Z axis
 
             // Recycle after it falls under the ground
             if (vertices[i + 1] < -50) {

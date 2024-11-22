@@ -5,6 +5,8 @@ import Sky from '../world/Sky';
 import Terrain from '/src/world/Terrain.js';
 import Player from '../entities/Player';
 import Tree from '../entities/Tree';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
 
 /* Class to handle creating the scene and updating it */
 class SceneManager {
@@ -125,19 +127,13 @@ class SceneManager {
                         this.treeLocation.push([x, y, z]);
                         tree.addToScene(this.scene);
                     }
-                    
+
                     count++;
                 }
             }
         }
         this.addCrosshair();
     }
-
-    // Function to update the scene 
-    update(time) {
-        this.sun.animate(time);
-        this.moon.animate(time);
-
 
     /**
      * Function to update the scene
@@ -149,7 +145,7 @@ class SceneManager {
             // Update sun and moon positions
             this.sun.animate(deltaTime);
             this.moon.animate(deltaTime);
-            this.sky.animate(deltaTime);        
+            this.sky.animate(deltaTime);
             this.player.update(deltaTime);
         }
 
@@ -171,18 +167,20 @@ class SceneManager {
         // Create a div for the crosshair
         var crosshair = document.createElement('div');
         crosshair.style.position = 'absolute';
-        crosshair.style.top = '50%'; 
+        crosshair.style.top = '50%';
         crosshair.style.left = '50%';
         crosshair.style.transform = 'translate(-50%, -50%)';
-        crosshair.style.width = '37.5px';  
-        crosshair.style.height = '37.5px'; 
-        crosshair.style.backgroundImage = 'url(public/assets/textures/Snowflake_Sprite.png)'; 
-        crosshair.style.backgroundSize = 'contain'; 
-        crosshair.style.backgroundRepeat = 'no-repeat'; 
-        crosshair.style.pointerEvents = 'none'; 
+        crosshair.style.width = '37.5px';
+        crosshair.style.height = '37.5px';
+        crosshair.style.backgroundImage = 'url(public/assets/textures/Snowflake_Sprite.png)';
+        crosshair.style.backgroundSize = 'contain';
+        crosshair.style.backgroundRepeat = 'no-repeat';
+        crosshair.style.pointerEvents = 'none';
 
         document.body.appendChild(crosshair);
     }
 }
+
+
 
 export default SceneManager;

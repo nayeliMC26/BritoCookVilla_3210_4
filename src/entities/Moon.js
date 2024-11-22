@@ -98,9 +98,9 @@ export default class Moon {
     animate(time) {
         if (isNaN(time)) return;
         // The angle that were going to rotate the moon by
-        var angle = this.moonRise + ((this.moonSet / this.time) * ((time + this.time) % (this.time * 2)));
+        var angle = this.moonRise + ((this.moonSet / this.time) * (time + this.time) );
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(angle - this.currentA);
-        this.percentage = (angle - this.moonRise) / this.moonSet;
+        this.percentage = ((angle - this.moonRise) / this.moonSet) % 2;
         // Rotate the moon
         this.mesh.applyMatrix4(rotationMatrix);
         this.currentA = angle;

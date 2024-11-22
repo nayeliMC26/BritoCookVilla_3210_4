@@ -115,13 +115,12 @@ export default class Sun {
     animate(time) {
         if (isNaN(time)) return;
         // The angle that were going to rotate the sun by
-        var angle = this.sunRise + ((this.sunSet / this.time) * (time % (this.time * 2)));
+        var angle = this.sunRise + ((this.sunSet / this.time) * time);
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(angle - this.currentA);
-        this.percentage = (angle - this.sunRise) / this.sunSet;
+        this.percentage = ((angle - this.sunRise) / this.sunSet) % 2;
         // Rotate the sun
         this.mesh.applyMatrix4(rotationMatrix);
         this.currentA = angle;
-
         this.#updateColor();
         this.#updateIntensity();
     }
