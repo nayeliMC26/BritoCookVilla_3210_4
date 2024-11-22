@@ -94,13 +94,13 @@ class SceneManager {
 
         for (let treeType of treeTypes) {
             let count = 0;
-            while (count < 10) {
+            while (count < 20) {
                 // Generate 10 trees per type
                 const randomIndex = Math.floor(Math.random() * blockArray.length);
                 const [x, y, z] = blockArray[randomIndex];
 
                 // Ensure the tree is placed only on blocks with an exposed top
-                if (isPositionInArray([x, y, z], topBlocks)) {
+                if (isPositionInArray([x, y, z], topBlocks) && !this.treeLocation.includes([x, y, z]) && y != 0 && y != 10) {
                     if (treeType < 3) {
                         const tree = new Tree(
                             new THREE.Vector3(x, y, z),
@@ -110,6 +110,7 @@ class SceneManager {
                             treeType, // Grammar type
                             true
                         );
+                        this.treeLocation.push([x, y, z]);
                         tree.addToScene(this.scene);
                     } else {
                         const tree = new Tree(
@@ -119,6 +120,7 @@ class SceneManager {
                             Math.PI / 2, // Angle for branching
                             treeType // Grammar type
                         );
+                        this.treeLocation.push([x, y, z]);
                         tree.addToScene(this.scene);
                     }
                     
