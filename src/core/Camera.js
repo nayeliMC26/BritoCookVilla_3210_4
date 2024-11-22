@@ -1,4 +1,3 @@
-
 // Deprecated
 // import * as THREE from 'three';
 // /* Class to handle creating the camera and getting the camera */
