@@ -8,7 +8,8 @@ class Tree {
         iterations,
         angle,
         grammarType,
-        stochastic = false
+        stochastic = false,
+        boundingBoxArr
     ) {
         this.position = position;
         this.blockSize = blockSize;
@@ -16,6 +17,7 @@ class Tree {
         this.angle = angle;
         this.axiom = "F";
         this.stochastic = stochastic;
+        this.boundingBoxArr = boundingBoxArr;
 
         this.block = new Block(this.blockSize);
 
@@ -24,20 +26,20 @@ class Tree {
             1: {
                 F: [
                     { rule: "FF[+F][-F]", probability: 0.8 },
-                    { rule: "F[+F][-F]F", probability: 0.2 }
+                    { rule: "F[+F][-F]F", probability: 0.2 },
                 ],
             },
             2: {
                 F: [
                     { rule: "F[+F][-F]F", probability: 0.7 },
-                    { rule: "FF[+F][-F]", probability: 0.3 }
+                    { rule: "FF[+F][-F]", probability: 0.3 },
                 ],
             },
             3: {
                 F: [
-                    { rule: "FF[+F][-F]", probability: 1.0 } // Single deterministic rule
+                    { rule: "FF[+F][-F]", probability: 1.0 }, // Single deterministic rule
                 ],
-            }
+            },
         };
 
         // Get the rules for the selected grammar type
@@ -126,13 +128,20 @@ class Tree {
         for (let char of axiom) {
             if (char === "F") {
                 // Move forward, placing an instanced block for the trunk
-                position.add(direction.clone().multiplyScalar(this.blockSize));
+                this.position.add(direction.clone().multiplyScalar(this.blockSize));
                 const matrix = new THREE.Matrix4().setPosition(
                     position.x + this.position.x,
                     position.y + this.position.y,
                     position.z + this.position.z
                 );
                 this.trunkMesh.setMatrixAt(trunkIndex++, matrix);
+
+                // Create a bounding box at the position of the block
+                const treeBoundingBox = new THREE.Box3()
+                    .setFromCenterAndSize(this.position, new THREE.Vector3(this.blockSize, this.blockSize, this.blockSize));
+
+                // Add the bounding box to the array
+                this.boundingBoxArr.push(treeBoundingBox);
             } else if (char === "+") {
                 // Turn right
                 direction.applyAxisAngle(

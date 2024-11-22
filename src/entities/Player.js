@@ -40,6 +40,9 @@ class Player {
         this.debugMode = false;
         this.cameraOffset = new THREE.Vector3(0, 20, -30);
 
+        this.playerBoundingBox = new THREE.Box3(); // Bounding box for the player
+        this.previousPosition = this.position.clone(); // Store previous position for collision resolution
+
         this.keyboardControls();
     }
 
@@ -107,7 +110,7 @@ class Player {
         this.mouseLookEnabled = document.pointerLockElement === document.body;
     }
 
-    update(deltaTime) {
+    update(deltaTime, boundingBoxes) {
         const moveSpeed = this.speed * deltaTime;
         this.velocity.set(0, 0, 0);
 
@@ -136,15 +139,39 @@ class Player {
 
         this.velocity.normalize().multiplyScalar(moveSpeed);
 
-        // Update position
-        this.position.add(this.velocity);
+        // Predict the next position
+        const nextPosition = this.position.clone().add(this.velocity);
 
         // Ensure player stays on terrain
-        this.position.y = this.terrain.getHeightAt(
-            this.position.x,
-            this.position.z
-        ) + this.height;
+        nextPosition.y =
+            this.terrain.getHeightAt(nextPosition.x, nextPosition.z) +
+            this.height;
 
+        // Update player bounding box to the predicted position
+        const nextBoundingBox = this.playerBoundingBox.clone();
+        nextBoundingBox.setFromCenterAndSize(
+            new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z),
+            this.playerBoundingBox.getSize(new THREE.Vector3())
+        );
+
+        // Check for collisions
+        let collisionDetected = false;
+        for (const boundingBox of boundingBoxes) {
+            if (nextBoundingBox.intersectsBox(boundingBox)) {
+                collisionDetected = true;
+                break;
+            }
+        }
+
+        // Update position only if no collision is detected
+        if (!collisionDetected) {
+            this.previousPosition.copy(this.position); // Store current position
+            this.position.copy(nextPosition);
+        }
+
+        console.log(collisionDetected);
+
+        // Update player mesh position
         this.playerMesh.position.copy(this.position);
 
         if (this.debugMode) {
@@ -161,6 +188,9 @@ class Player {
                 this.position.z
             );
         }
+
+        // Update bounding box for rendering/debugging
+        this.playerBoundingBox.setFromObject(this.playerMesh);
     }
 }
 
