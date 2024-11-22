@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
+import { Group } from "three/examples/jsm/libs/tween.module.js";
 
 class Player {
     constructor(scene, camera, terrain) {
@@ -14,8 +15,50 @@ class Player {
             this.height,
             this.height / 2
         );
-        const material = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0 });
-        this.playerMesh = new THREE.Mesh(geometry, material);
+
+        this.playerMesh = new THREE.Group();
+
+        const material = new THREE.MeshBasicMaterial({ color: 0x000000, colorWrite: false, depthWrite: false });
+        const geo1 = new THREE.BoxGeometry(5, 5, 5);
+
+        this.mesh1 = new THREE.Mesh(geo1, material);
+        this.mesh1.position.set(0.75 * 5, 0.5 * 5, 0);
+        this.mesh1.scale.set(0.5, 2, 0.5);
+        this.mesh1.castShadow = true;
+        this.playerMesh.add(this.mesh1);
+
+        this.mesh2 = new THREE.Mesh(geo1, material);
+        this.mesh2.position.set(-0.75 * 5, 0.5 * 5, 0);
+        this.mesh2.scale.set(0.5, 2, 0.5);
+        this.mesh2.castShadow = true;
+        this.playerMesh.add(this.mesh2);
+
+        this.mesh3 = new THREE.Mesh(geo1, material);
+        this.mesh3.position.set(0.25 * 5, -1 * 5, 0);
+        this.mesh3.scale.set(0.5, 2, 0.5);
+        this.mesh3.castShadow = true;
+        this.playerMesh.add(this.mesh3);
+
+        this.mesh4 = new THREE.Mesh(geo1, material);
+        this.mesh4.position.set(-0.25 * 5, -1 * 5, 0);
+        this.mesh4.scale.set(0.5, 2, 0.5);
+        this.mesh4.castShadow = true;
+        this.playerMesh.add(this.mesh4);
+
+        this.mesh5 = new THREE.Mesh(geo1, material);
+        this.mesh5.position.set(0, 0.75 * 5, 0);
+        this.mesh5.scale.set(1, 1.5, 0.5);
+        this.mesh5.castShadow = true;
+        this.playerMesh.add(this.mesh5);
+
+        this.mesh6 = new THREE.Mesh(geo1, material);
+        this.mesh6.position.set(0, 2 * 5, 0);
+        this.mesh6.castShadow = true;
+        this.playerMesh.add(this.mesh6);
+
+        this.playerMesh.castShadow = true;
+
+        //this.playerMesh = new THREE.Mesh(geometry, material);
         this.scene.add(this.playerMesh);
 
         this.position = new THREE.Vector3(
@@ -169,8 +212,6 @@ class Player {
             this.position.copy(nextPosition);
         }
 
-        console.log(collisionDetected);
-
         // Update player mesh position
         this.playerMesh.position.copy(this.position);
 
@@ -181,10 +222,15 @@ class Player {
                 this.position.z + this.cameraOffset.z
             );
             this.camera.lookAt(this.position);
-        } else if (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight) {
+        } else if (
+            this.moveForward ||
+            this.moveBackward ||
+            this.moveLeft ||
+            this.moveRight
+        ) {
             this.camera.position.set(
                 this.position.x,
-                (this.position.y + this.height / 2) + (Math.random() > 0.9),
+                this.position.y + this.height / 2 + (Math.random() > 0.9),
                 this.position.z
             );
         } else {
