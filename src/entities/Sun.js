@@ -125,7 +125,7 @@ export default class Sun {
         this.#updateIntensity();
     }
 
-    getDayLenght() {
+    getDayLength() {
         return this.time;
     }
 }

@@ -42,7 +42,7 @@ class SceneManager {
         // Sun and Moon objects / lighting
         this.sun = new Sun(this.scene, this.colorAmbientLight);
         this.moon = new Moon(this.scene, this.colorAmbientLight);
-        this.sky = new Sky(this.scene, this.sun.getDayLenght() * 2);
+        this.sky = new Sky(this.scene, this.renderer, this.sun.getDayLength() * 2);
 
         // Create the terrain using a timeout method to not stall loading 
         setTimeout(() => {

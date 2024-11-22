@@ -3,8 +3,9 @@ import * as THREE from "three";
 
 export default class Sky {
 
-    constructor(scene, time) {
+    constructor(scene, renderer, time) {
         this.scene = scene;
+        this.renderer = renderer;
         // How much both day + night take
         this.time = time;
         // Percentage of time passed
@@ -12,7 +13,7 @@ export default class Sky {
         // Parameters for sky geometry
         this.radius, this.geometry, this.material, this.mesh, this.color;
         // List of colors that the sky will go through
-        this.pallete = [
+        this.palette = [
             { r: 1, g: 0.655, b: 0 }, // Orange
             { r: 0.4, g: 0.922, b: 1 }, // Light Blue
             { r: 0.933, g: 0.686, b: 0.380 }, // Soft-Orange
@@ -35,7 +36,7 @@ export default class Sky {
         this.geometry = new THREE.SphereGeometry(this.radius, 32, 32);
         this.material = new THREE.MeshBasicMaterial({ color: this.color, side: THREE.DoubleSide });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-        this.scene.add(this.mesh);
+        //this.scene.add(this.mesh);
     }
 
     #initSnow() {
@@ -64,30 +65,30 @@ export default class Sky {
         switch (true) {
             case (this.percentage <= .075): // Orange to Light Blue
                 var currP = (this.percentage) / .075;
-                this.#colorChange(this.pallete[0], this.pallete[1], currP)
+                this.#colorChange(this.palette[0], this.palette[1], currP)
                 break;
             case (this.percentage > .425 && this.percentage <= .475): // Light Blue to Soft-Orange
                 var currP = (this.percentage - .425) / .05;
-                this.#colorChange(this.pallete[1], this.pallete[2], currP)
+                this.#colorChange(this.palette[1], this.palette[2], currP)
                 break;
             case (this.percentage > .475 && this.percentage <= .5): // Soft-Orange to Soft-Pink
                 var currP = (this.percentage - .475) / .025;
-                this.#colorChange(this.pallete[2], this.pallete[3], currP)
+                this.#colorChange(this.palette[2], this.palette[3], currP)
                 break;
             case (this.percentage > .5 && this.percentage <= .55): // Soft-Pink to Dark Blue
                 var currP = (this.percentage - .5) / .05;
-                this.#colorChange(this.pallete[3], this.pallete[4], currP)
+                this.#colorChange(this.palette[3], this.palette[4], currP)
                 break;
             case (this.percentage > .95 && this.percentage <= .975): // Dark Blue to Soft-Orange
                 var currP = (this.percentage - .95) / .025;
-                this.#colorChange(this.pallete[4], this.pallete[2], currP)
+                this.#colorChange(this.palette[4], this.palette[2], currP)
                 break;
             case (this.percentage > .975 && this.percentage <= 1): // Soft-Orange to Orange
                 var currP = (this.percentage - .975) / .025;
-                this.#colorChange(this.pallete[2], this.pallete[0], currP)
+                this.#colorChange(this.palette[2], this.palette[0], currP)
                 break;
         }
-        this.material.color.set(this.color);
+        this.renderer.setClearColor(this.color)
     }
 
     /**
