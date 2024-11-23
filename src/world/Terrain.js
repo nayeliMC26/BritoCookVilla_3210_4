@@ -44,6 +44,12 @@ class Terrain {
         this.dirtMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
         this.grassMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
+        // Create a group to hold all instanced meshes
+        this.mesh = new THREE.Group();
+        this.mesh.add(this.stoneMesh);
+        this.mesh.add(this.dirtMesh);
+        this.mesh.add(this.grassMesh);
+
         this.initTerrain();
     }
 
@@ -109,11 +115,6 @@ class Terrain {
         this.dirtMesh.instanceMatrix.needsUpdate = true;
         this.grassMesh.instanceMatrix.needsUpdate = true;
 
-        // Create a group to hold all instanced meshes
-        this.mesh = new THREE.Group();
-        this.mesh.add(this.stoneMesh);
-        this.mesh.add(this.dirtMesh);
-        this.mesh.add(this.grassMesh);
 
         // Add LOD system
         this.addLOD();

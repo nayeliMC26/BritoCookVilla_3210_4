@@ -60,6 +60,9 @@ class Tree {
 
         this.trunkMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
         this.leafMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        this.mesh = new THREE.Group();
+        this.mesh.add(this.trunkMesh);
+        this.mesh.add(this.leafMesh);
 
         this.generateTree();
     }

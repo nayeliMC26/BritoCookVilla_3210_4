@@ -1,12 +1,11 @@
 import * as THREE from 'three';
-import Sun from '../entities/Sun';
-import Moon from '../entities/Moon';
-import Sky from '../world/Sky';
-import Terrain from '/src/world/Terrain.js';
-import Player from '../entities/Player';
-import Tree from '../entities/Tree';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
+import Sun from '../entities/Sun.js';
+import Moon from '../entities/Moon.js';
+import Sky from '../world/Sky.js';
+import Terrain from '../world/Terrain.js';
+import Player from '../entities/Player.js';
+import Tree from '../entities/Tree.js';
+import Raycaster from '../core/Raycaster.js'
 
 /* Class to handle creating the scene and updating it */
 class SceneManager {
@@ -42,6 +41,7 @@ class SceneManager {
         // Sun and Moon objects / lighting
         this.sun = new Sun(this.scene, this.colorAmbientLight);
         this.moon = new Moon(this.scene, this.colorAmbientLight);
+        this.mouse = new THREE.Vector2(1, 1);
 
         // Create the terrain using a timeout method to not stall loading 
         setTimeout(() => {
@@ -62,11 +62,13 @@ class SceneManager {
             // console.log(this.terrain.blockSize * this.terrain.resolution)
 
             this.addTrees();
+            this.raycaster = new Raycaster(this.scene, this.camera, this.terrain, this.mouse, this.player);
         }, 100); // Delay terrain generation by 100ms to avoid blocking initial scene load
 
 
         // Handle window resizing
         window.addEventListener('resize', this.onWindowResize.bind(this), false);
+        document.addEventListener('mousemove', this.onMouseMove.bind(this), false);
     }
 
     /**
@@ -78,6 +80,11 @@ class SceneManager {
         this.renderer.setSize(window.innerWidth, window.innerHeight); // Update renderer size
     }
 
+    onMouseMove(event) {
+        event.preventDefault();
+        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+    }
 
     /**
      * Add trees to the terrain after terrain is ready.
@@ -152,6 +159,7 @@ class SceneManager {
             this.moon.animate(deltaTime);
             this.sky.animate(deltaTime);
             this.player.update(deltaTime);
+            this.raycaster.update()
         }
 
     }
@@ -175,9 +183,9 @@ class SceneManager {
         crosshair.style.top = '50%';
         crosshair.style.left = '50%';
         crosshair.style.transform = 'translate(-50%, -50%)';
-        crosshair.style.width = '37.5px';
-        crosshair.style.height = '37.5px';
-        crosshair.style.backgroundImage = 'url(public/assets/textures/Snowflake_Sprite.png)';
+        crosshair.style.width = '25px';
+        crosshair.style.height = '25px';
+        crosshair.style.backgroundImage = 'url(./assets/textures/Snowflake_Sprite.png)';
         crosshair.style.backgroundSize = 'contain';
         crosshair.style.backgroundRepeat = 'no-repeat';
         crosshair.style.pointerEvents = 'none';
