@@ -232,7 +232,7 @@ class Terrain {
      */
     addToScene(scene) {
         // Add fog to the scene for better depth
-        scene.fog = new THREE.Fog(0xa0a0a0, 250, 1000); // Set fog near and far distances
+        scene.fog = new THREE.Fog(0xa0a0a0, 250, 500); // Set fog near and far distances
 
         // Enable frustum culling for all meshes
         this.stoneMesh.frustumCulled = true;

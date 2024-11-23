@@ -206,8 +206,7 @@ class Tree {
      * Add tree mesh to the scene
      */
     addToScene(scene) {
-        scene.add(this.trunkMesh);
-        scene.add(this.leafMesh);
+        scene.add(this.mesh);
     }
 }
 

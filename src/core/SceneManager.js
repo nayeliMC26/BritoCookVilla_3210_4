@@ -62,9 +62,10 @@ class SceneManager {
             // console.log(this.terrain.blockSize * this.terrain.resolution)
 
             this.addTrees();
-            this.raycaster = new Raycaster(this.scene, this.camera, this.terrain, this.mouse, this.player);
+            this.raycaster = new Raycaster(this.scene, this.camera, this.terrain, this.trees, this.mouse, this.player);
         }, 100); // Delay terrain generation by 100ms to avoid blocking initial scene load
 
+        this.trees = [];
 
         // Handle window resizing
         window.addEventListener('resize', this.onWindowResize.bind(this), false);
@@ -118,7 +119,7 @@ class SceneManager {
                 // Ensure the tree is placed only on blocks with an exposed top
                 if (isPositionInArray([x, y, z], topBlocks) && !this.treeLocation.includes([x, y, z]) && y != 0 && y != 10) {
                     if (treeType < 3) {
-                        const tree = new Tree(
+                        this.tree = new Tree(
                             new THREE.Vector3(x, y, z),
                             this.terrain.blockSize,
                             2, // Number of iterations
@@ -127,9 +128,10 @@ class SceneManager {
                             true
                         );
                         this.treeLocation.push([x, y, z]);
-                        tree.addToScene(this.scene);
+                        this.tree.addToScene(this.scene);
+                        this.trees.push(this.tree);
                     } else {
-                        const tree = new Tree(
+                        this.tree = new Tree(
                             new THREE.Vector3(x, y, z),
                             this.terrain.blockSize,
                             2, // Number of iterations
@@ -137,7 +139,8 @@ class SceneManager {
                             treeType // Grammar type
                         );
                         this.treeLocation.push([x, y, z]);
-                        tree.addToScene(this.scene);
+                        this.tree.addToScene(this.scene);
+                        this.trees.push(this.tree);
                     }
 
                     count++;

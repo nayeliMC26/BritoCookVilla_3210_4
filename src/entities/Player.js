@@ -7,7 +7,7 @@ class Player {
         this.camera = camera;
         this.terrain = terrain;
         this.height = 15;
-        this.speed = 60;
+        this.speed = 30;
         this.velocity = new THREE.Vector3();
         const geometry = new THREE.BoxGeometry(
             this.height / 2,
@@ -43,6 +43,22 @@ class Player {
         this.time = 0;
 
         this.keyboardControls();
+
+        // Calculate terrain dimensions
+        var terrainWidth = this.terrain.resolution * this.terrain.blockSize; 
+        var terrainHeight = this.terrain.maxHeight * this.terrain.blockSize; 
+
+        // Calculate the min and max coordinates for the bounding box
+        var minCorner = new THREE.Vector3((-terrainWidth / 2), 0, (-terrainWidth / 2));
+
+        var maxCorner = new THREE.Vector3((terrainWidth / 2), terrainHeight, (terrainWidth / 2));
+
+        this.wallBoundingBox = new THREE.Box3(minCorner, maxCorner);
+
+        // Visualize the bounding box for debugging
+        this.boundingBoxHelper = new THREE.Box3Helper(this.wallBoundingBox, 0xff0000);
+        this.scene.add(this.boundingBoxHelper);
+
     }
 
     keyboardControls() {
@@ -109,6 +125,26 @@ class Player {
         this.mouseLookEnabled = document.pointerLockElement === document.body;
     }
 
+    handleCollision() {
+        if (!this.wallBoundingBox.containsPoint(this.position)) {
+            this.position.x = THREE.MathUtils.clamp(
+                this.position.x,
+                this.wallBoundingBox.min.x,
+                this.wallBoundingBox.max.x
+            );
+            this.position.y = THREE.MathUtils.clamp(
+                this.position.y,
+                this.wallBoundingBox.min.y,
+                this.wallBoundingBox.max.y
+            );
+            this.position.z = THREE.MathUtils.clamp(
+                this.position.z,
+                this.wallBoundingBox.min.z,
+                this.wallBoundingBox.max.z
+            );
+        }
+    }
+
     update(time) {
         const deltaTime = time - this.time;
         this.time = time;
@@ -140,6 +176,8 @@ class Player {
         }
 
         this.velocity.normalize().multiplyScalar(moveSpeed);
+
+        this.handleCollision();
 
         // Update position
         this.position.add(this.velocity);
