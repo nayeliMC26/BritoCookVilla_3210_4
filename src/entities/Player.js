@@ -14,7 +14,11 @@ class Player {
 
         this.playerMesh = new THREE.Group();
 
-        const material = new THREE.MeshBasicMaterial({ color: 0x000000, colorWrite: false, depthWrite: false });
+        const material = new THREE.MeshBasicMaterial({
+            color: 0x000000,
+            colorWrite: false,
+            depthWrite: false,
+        });
         const geo1 = new THREE.BoxGeometry(5, 5, 5);
 
         this.mesh1 = new THREE.Mesh(geo1, material);
@@ -68,7 +72,7 @@ class Player {
         this.playerMesh.position.copy(this.position);
 
         this.controls = new PointerLockControls(this.camera, document.body);
-        this.scene.add(this.controls.object);
+        this.scene.add(this.camera); // Add the camera directly to the scene
 
         this.moveForward = false;
         this.moveBackward = false;
@@ -79,42 +83,52 @@ class Player {
         this.debugMode = false;
         this.cameraOffset = new THREE.Vector3(0, 20, -30);
 
-
         this.playerBoundingBox = new THREE.Box3(); // Bounding box for the player
         this.previousPosition = this.position.clone(); // Store previous position for collision resolution
 
-        this.keyboardControls();
-
-
         // Calculate terrain dimensions
-        var terrainWidth = this.terrain.resolution * this.terrain.blockSize; 
-        var terrainHeight = this.terrain.maxHeight * this.terrain.blockSize; 
+        var terrainWidth = this.terrain.resolution * this.terrain.blockSize;
+        var terrainHeight = this.terrain.maxHeight * this.terrain.blockSize;
 
         // Calculate the min and max coordinates for the bounding box
-        var minCorner = new THREE.Vector3((-terrainWidth / 2), 0, (-terrainWidth / 2));
+        var minCorner = new THREE.Vector3(
+            -terrainWidth / 2,
+            0,
+            -terrainWidth / 2
+        );
 
-        var maxCorner = new THREE.Vector3((terrainWidth / 2), terrainHeight, (terrainWidth / 2));
+        var maxCorner = new THREE.Vector3(
+            terrainWidth / 2 - 10,
+            terrainHeight,
+            terrainWidth / 2 - 10
+        );
 
         this.wallBoundingBox = new THREE.Box3(minCorner, maxCorner);
 
-        // Visualize the bounding box for debugging
-        this.boundingBoxHelper = new THREE.Box3Helper(this.wallBoundingBox, 0xff0000);
-        //this.scene.add(this.boundingBoxHelper);
-
         this.createFlashlight();
+        this.keyboardControls();
     }
+
     createFlashlight() {
         var flashlightMesh = new THREE.Group();
         this.flashlightMesh = flashlightMesh;
         var flashlightBodyGeometry = new THREE.BoxGeometry(1.5, 4, 1.5);
         var flashlightHeadGeometry = new THREE.BoxGeometry(2, 1, 2);
-        var flashlightMaterial = new THREE.MeshPhongMaterial({ color: 0x404040 })
+        var flashlightMaterial = new THREE.MeshPhongMaterial({
+            color: 0x404040,
+        });
 
-        var flashlightHead = new THREE.Mesh(flashlightHeadGeometry, flashlightMaterial);
+        var flashlightHead = new THREE.Mesh(
+            flashlightHeadGeometry,
+            flashlightMaterial
+        );
         flashlightHead.position.set(5, -3, -7);
         flashlightHead.rotation.set(0, Math.PI / 2, Math.PI / 2);
 
-        var flashlightBody = new THREE.Mesh(flashlightBodyGeometry, flashlightMaterial);
+        var flashlightBody = new THREE.Mesh(
+            flashlightBodyGeometry,
+            flashlightMaterial
+        );
         flashlightBody.position.set(5, -3, -5);
         flashlightBody.rotation.set(0, Math.PI / 2, Math.PI / 2);
 
@@ -122,7 +136,14 @@ class Player {
         flashlightMesh.add(flashlightBody);
         this.camera.add(flashlightMesh);
 
-        this.illumination = new THREE.SpotLight(0xfff4bd, 10000, 1000, Math.PI / 6, 0.5, 2);
+        this.illumination = new THREE.SpotLight(
+            0xfff4bd,
+            10000,
+            1000,
+            Math.PI / 6,
+            0.5,
+            2
+        );
         this.camera.add(this.illumination);
         this.camera.add(this.illumination.target);
         this.illumination.position.set(0, 0, 0);
@@ -132,7 +153,6 @@ class Player {
         for (var mesh of this.camera.children) {
             mesh.visible = false;
         }
-
     }
 
     keyboardControls() {
@@ -157,13 +177,19 @@ class Player {
                     this.debugMode = !this.debugMode;
                     break;
                 case "KeyF":
+                    console.log("Toggle flashlight"); // Debug log
                     if (this.flashlightMesh.visible) {
                         this.illumination.visible = !this.illumination.visible;
+                        console.log(
+                            "Flashlight visibility:",
+                            this.illumination.visible
+                        );
                     }
                     break;
                 case "KeyE":
                     for (var mesh of this.camera.children) {
                         mesh.visible = !mesh.visible;
+                        console.log(mesh.visible);
                     }
                     this.illumination.visible = false;
                     break;
@@ -230,7 +256,6 @@ class Player {
         }
     }
 
-
     update(deltaTime, boundingBoxes) {
         const moveSpeed = this.speed * deltaTime;
         this.velocity.set(0, 0, 0);
@@ -284,6 +309,7 @@ class Player {
         for (const boundingBox of boundingBoxes) {
             if (nextBoundingBox.intersectsBox(boundingBox)) {
                 collisionDetected = true;
+                this.position.copy(this.previousPosition);
                 break;
             }
         }
@@ -296,6 +322,9 @@ class Player {
 
         // Update player mesh position
         this.playerMesh.position.copy(this.position);
+
+        // Sync player mesh rotation with the camera's rotation
+        this.playerMesh.rotation.y = -this.camera.rotation.z;
 
         if (this.debugMode) {
             this.camera.position.set(
@@ -313,7 +342,9 @@ class Player {
             this.bobCounter += deltaTime * 10;
             this.camera.position.set(
                 this.position.x,
-                this.position.y + this.height / 2 + (Math.sin(this.bobCounter * 1)),
+                this.position.y +
+                    this.height / 2 +
+                    Math.sin(this.bobCounter * 1),
                 this.position.z
             );
         } else {
@@ -326,7 +357,6 @@ class Player {
 
         // Update bounding box for rendering/debugging
         this.playerBoundingBox.setFromObject(this.playerMesh);
-
     }
 }
 

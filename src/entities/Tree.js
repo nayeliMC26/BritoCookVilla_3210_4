@@ -131,7 +131,9 @@ class Tree {
         for (let char of axiom) {
             if (char === "F") {
                 // Move forward, placing an instanced block for the trunk
-                this.position.add(direction.clone().multiplyScalar(this.blockSize));
+                this.position.add(
+                    direction.clone().multiplyScalar(this.blockSize)
+                );
                 const matrix = new THREE.Matrix4().setPosition(
                     position.x + this.position.x,
                     position.y + this.position.y,
@@ -140,8 +142,14 @@ class Tree {
                 this.trunkMesh.setMatrixAt(trunkIndex++, matrix);
 
                 // Create a bounding box at the position of the block
-                const treeBoundingBox = new THREE.Box3()
-                    .setFromCenterAndSize(this.position, new THREE.Vector3(this.blockSize, this.blockSize, this.blockSize));
+                const treeBoundingBox = new THREE.Box3().setFromCenterAndSize(
+                    this.position,
+                    new THREE.Vector3(
+                        this.blockSize,
+                        this.blockSize,
+                        this.blockSize
+                    )
+                );
 
                 // Add the bounding box to the array
                 this.boundingBoxArr.push(treeBoundingBox);
