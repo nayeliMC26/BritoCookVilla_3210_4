@@ -79,8 +79,10 @@ class Player {
         this.debugMode = false;
         this.cameraOffset = new THREE.Vector3(0, 20, -30);
 
+
         this.playerBoundingBox = new THREE.Box3(); // Bounding box for the player
         this.previousPosition = this.position.clone(); // Store previous position for collision resolution
+        this.time = 0;
 
         this.keyboardControls();
         this.createFlashlight();
@@ -178,7 +180,13 @@ class Player {
         this.mouseLookEnabled = document.pointerLockElement === document.body;
     }
 
+
     update(deltaTime, boundingBoxes) {
+
+        const deltaTime = time - this.time;
+        this.time = time;
+
+
         const moveSpeed = this.speed * deltaTime;
         this.velocity.set(0, 0, 0);
 

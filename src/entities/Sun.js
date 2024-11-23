@@ -23,7 +23,7 @@ export default class Sun {
         // Starting with the sun colored red
         this.color = new THREE.Color(1, 0, 0);
         // Making the Sun
-        this.radius = 50;
+        this.radius = 100;
         this.geometry = new THREE.BoxGeometry(
             this.radius * 2,
             this.radius * 2,
@@ -32,7 +32,7 @@ export default class Sun {
         this.material = new THREE.MeshBasicMaterial({ color: this.color, fog: false });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         // Positionning the sun
-        this.mesh.position.set(1000, 0, 0);
+        this.mesh.position.set(2500, 0, 0);
         // Rotating it so that it starts below the horizon
         this.sunRise = Math.asin(-this.radius / (this.mesh.position.x - 10)); // Starting angle
         this.currentA = this.sunRise;
@@ -41,7 +41,7 @@ export default class Sun {
         // Total angles traveled form the beginning to end 
         this.sunSet = Math.atan2(this.mesh.position.y, -this.mesh.position.x) - this.sunRise + (2 * Math.PI);
         // How much a rotation should take for 15 degrees every 10 seconds
-        this.time = (this.sunSet / 0.261799) * 1
+        this.time = (this.sunSet / 0.261799) * 10
 
         // Max ambient light intensity
         this.intensity = this.ambientLight.intensity;
@@ -115,14 +115,17 @@ export default class Sun {
     animate(time) {
         if (isNaN(time)) return;
         // The angle that were going to rotate the sun by
-        var angle = this.sunRise + ((this.sunSet / this.time) * (time % (this.time * 2)));
+        var angle = this.sunRise + ((this.sunSet / this.time) * time);
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(angle - this.currentA);
-        this.percentage = (angle - this.sunRise) / this.sunSet;
+        this.percentage = ((angle - this.sunRise) / this.sunSet) % 2;
         // Rotate the sun
         this.mesh.applyMatrix4(rotationMatrix);
         this.currentA = angle;
-
         this.#updateColor();
         this.#updateIntensity();
+    }
+
+    getDayLength() {
+        return this.time;
     }
 }

@@ -1,9 +1,10 @@
+
 import * as THREE from "three";
-import Sun from "../entities/Sun";
-import Moon from "../entities/Moon";
-import Terrain from "/src/world/Terrain.js";
-import Player from "../entities/Player";
-import Tree from "../entities/Tree";
+import Sun from "../entities/Sun.js";
+import Moon from "../entities/Moon.js";
+import Terrain from "../world/Terrain.js";
+import Player from "../entities/Player.js";
+import Tree from "../entities/Tree.js";
 
 /* Class to handle creating the scene and updating it */
 class SceneManager {
@@ -24,12 +25,7 @@ class SceneManager {
         document.body.appendChild(this.renderer.domElement);
 
         // Create new camera
-        this.camera = new THREE.PerspectiveCamera(
-            75,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            5000
-        );
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 5000);
         this.camera.position.set(0, 50, 200);
         this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
@@ -60,8 +56,12 @@ class SceneManager {
             // Create player and add it to the scene
             this.player = new Player(this.scene, this.camera, this.terrain);
 
+            const width = this.terrain.blockSize * this.terrain.resolution
+            this.sky = new Sky(this.scene, this.renderer, this.sun.getDayLength() * 2, width);
+
             this.addTrees();
         }, 100); // Delay terrain generation by 100ms to avoid blocking initial scene load
+
 
         // Handle window resizing
         window.addEventListener(
@@ -162,7 +162,10 @@ class SceneManager {
             this.sun.animate(deltaTime);
             this.moon.animate(deltaTime);
             this.player.update(deltaTime, this.boundingBoxes);
+            this.sky.animate(deltaTime);
+
         }
+
     }
 
     /**
@@ -191,9 +194,10 @@ class SceneManager {
         crosshair.style.backgroundSize = "contain";
         crosshair.style.backgroundRepeat = "no-repeat";
         crosshair.style.pointerEvents = "none";
-
         document.body.appendChild(crosshair);
     }
 }
+
+
 
 export default SceneManager;
