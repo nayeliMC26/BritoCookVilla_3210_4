@@ -112,6 +112,12 @@ class Player {
         );
         this.scene.add(this.boundingBoxHelper);
 
+        const playerHelper = new THREE.Box3Helper(
+            this.playerBoundingBox,
+            0xff0000
+        );
+        this.scene.add(playerHelper);
+
         this.createFlashlight();
         this.keyboardControls();
     }
@@ -310,6 +316,7 @@ class Player {
         for (const boundingBox of boundingBoxes) {
             if (nextBoundingBox.intersectsBox(boundingBox)) {
                 collisionDetected = true;
+                this.position.copy(this.previousPosition);
                 break;
             }
         }
