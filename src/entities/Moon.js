@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import ColorMerger from '../utils/ColorMerger';
 
 export default class Moon {
 
@@ -7,13 +8,21 @@ export default class Moon {
         // Ambient light
         this.ambientLight = light;
         // Parameters for moon geometry
-        this.radius, this.geometry, this.material, this.mesh, this.color;
+        this.radius, this.geometry, this.material, this.mesh;
+        // Light color
+        this.color;
+        this.colorMerger = new ColorMerger();
+        this.palette = [
+            { r: 0.416, g: 0.051, b: 0.514 }, // Purple
+            { r: 1, g: 0, b: 0 }, // Red
+        ];
         // Angles used for rotation
         this.moonRise, this.moonSet, this.currentA;
         // How long the night is
         this.time;
         // Intensity of ambient light
         this.intensity;
+
         // Percentage of night time
         this.percentage;
         // Making moon
@@ -65,43 +74,33 @@ export default class Moon {
     }
 
     #updateColor() {
-        switch (true) {
-            case (this.percentage > .85 && this.percentage <= 1): // Purple to Red
-                this.color.r = 0.416 + (0.584 * ((this.percentage - .85) / .15));
-                this.color.g = 0.051 + (-0.051 * ((this.percentage - .85) / .15));
-                this.color.b = 0.514 + (-0.514 * ((this.percentage - .85) / .15));
-                break;
-            case (this.percentage > 1): // Resetting color as its under the world
-                const angle = Math.atan2(this.mesh.position.y, this.mesh.position.x) + (2 * Math.PI);
-                const percentage = (angle - this.moonSet) / ((2 * Math.PI) - this.moonSet);
-                this.color.r = 1 + (-0.584 * percentage);
-                this.color.g = 0.051 * percentage;
-                this.color.b = 0.514 * percentage;
-                break;
+        var currP;
+        if (this.percentage > .85 && this.percentage <= 1) { // Purple to Red
+            currP = (this.percentage - 0.85) / 0.15;
+            this.color = this.colorMerger.colorChange(this.palette[0], this.palette[1], currP);
+        } else if (this.percentage > 1) { // Resetting color as its under the world
+            currP = this.percentage - 1;
+            this.color = this.colorMerger.colorChange(this.palette[1], this.palette[0], currP);
         }
+
         // Only change ambient light when it's night time
-        if (this.percentage <= 1) {
-            this.ambientLight.color.set(this.color);
-        }
+        if (this.percentage <= 1) this.ambientLight.color.set(this.color);
         this.directionalLight.color.set(this.color);
     }
 
-    #updateIntensity(deltaTime) {
-        switch (true) {
-            case (this.percentage <= .05): // Decreasing light for a dark midnight
-                this.ambientLight.intensity = this.intensity - ((this.intensity / 2) * (this.percentage / .05));
-                break;
-            case (this.percentage > .95 && this.percentage <= 1): // Increasing the light to prepare for sunrise
-                this.ambientLight.intensity = (this.intensity / 2) + ((this.intensity / 2) * ((this.percentage - .95) / .05));
-                break;
+    #updateIntensity() {
+        if (this.percentage <= .05) { // Decreasing light for a dark midnight
+            this.ambientLight.intensity = this.intensity - ((this.intensity / 2) * (this.percentage / .05));
+        } else if (this.percentage > .95 && this.percentage <= 1) { // Increasing the light to prepare for sunrise
+            this.ambientLight.intensity = (this.intensity / 2) + ((this.intensity / 2) * ((this.percentage - .95) / .05));
         }
     }
 
-    animate(deltaTime) {
-        if (isNaN(deltaTime)) return;
-        // The angle that we're going to rotate the moon by
-        var angleChange = (this.moonSet / this.time) * deltaTime;
-        var angle = this.moonRise + angleChange;
+
+    animate(time) {
+        if (isNaN(time)) return;
+        // The angle that were going to rotate the moon by
+        var angle = this.moonRise + ((this.moonSet / this.time) * (time + this.time));
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(angle - this.currentA);
         this.percentage = ((angle - this.moonRise) / this.moonSet) % 2;
         // Rotate the moon
@@ -109,6 +108,6 @@ export default class Moon {
         this.currentA = angle;
 
         this.#updateColor();
-        this.#updateIntensity(deltaTime);
+        this.#updateIntensity();
     }
 }
