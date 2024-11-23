@@ -7,7 +7,7 @@ class Player {
         this.camera = camera;
         this.terrain = terrain;
         this.height = 15;
-        this.speed = 15;
+        this.speed = 30;
         this.velocity = new THREE.Vector3();
 
         this.bobCounter = 0;
@@ -196,7 +196,7 @@ class Player {
 
     update(deltaTime, boundingBoxes) {
 
-        const moveSpeed = this.speed * (deltaTime / 60);
+        const moveSpeed = this.speed * deltaTime;
         this.velocity.set(0, 0, 0);
 
         // Calculate movement direction
