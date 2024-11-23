@@ -62,11 +62,17 @@ class Raycaster {
     }
 
     removeObject() {
-        if (this.currentHighlight.mesh && this.currentHighlight.instanceId !== null) {
-            const matrix = new THREE.Matrix4().makeTranslation(0, 0, 0);
-            this.currentHighlight.mesh.setMatrixAt(this.currentHighlight.instanceId, matrix);
-            this.currentHighlight.mesh.instanceMatrix.needsUpdate = true;
+        if ((this.currentHighlight.mesh === null) && (this.currentHighlight.instanceId === null)) return;
+        const mesh = this.currentHighlight.mesh;
+        const id = this.currentHighlight.instanceId;
+        const matrix = new THREE.Matrix4()
+        mesh.getMatrixAt(id, matrix)
+        if (matrix.elements[13] > 0) {
+            matrix.makeTranslation(0, 0, 0);
+            mesh.setMatrixAt(id, matrix);
+            mesh.instanceMatrix.needsUpdate = true;
         }
+
     }
 
     /**
