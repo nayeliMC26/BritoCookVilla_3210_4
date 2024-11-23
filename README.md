@@ -34,6 +34,8 @@ Finally, run
 ### Textures
 Free to use from Mojang, samples from older versions of Minecraft.
 [Mojang Bedrock Samples](https://github.com/Mojang/bedrock-samples)
+Free snowflake textures for public use. Credit to rawpixel.com on Freepik.
+[Snowflakes](https://www.freepik.com/free-vector/set-snowflakes-christmas-design-vector_3529750.htm#fromView=search&page=1&position=0&uuid=b99359d7-97af-41a7-9335-6be69daef9b5)
 
 ### Sounds
 Free to use music from FMA, non commercial only.
