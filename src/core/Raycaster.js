@@ -60,15 +60,20 @@ class Raycaster {
             this.currentHighlight.instanceId = null;
         }
     }
-
+    //** Removes tha object that's highlighthed */
     removeObject() {
+        // If no object highlighthed return
         if ((this.currentHighlight.mesh === null) && (this.currentHighlight.instanceId === null)) return;
         const mesh = this.currentHighlight.mesh;
         const id = this.currentHighlight.instanceId;
+        // Current tranformation matrix
         const matrix = new THREE.Matrix4()
         mesh.getMatrixAt(id, matrix)
+        // If object is art of the bottom layer (checks current y axis)
         if (matrix.elements[13] > 0) {
+            // Update the hight at the block
             this.terrain.updateHeight(matrix.elements[12], matrix.elements[14]);
+            // Moves it back to the origin
             matrix.makeTranslation(0, 0, 0);
             mesh.setMatrixAt(id, matrix);
             mesh.instanceMatrix.needsUpdate = true;
@@ -83,7 +88,6 @@ class Raycaster {
         if (this.controls.isLocked) {
             this.raycaster.set(this.camera.position, this.camera.getWorldDirection(new THREE.Vector3()));
             this.highlightObjects(this.terrain.mesh.children, new THREE.Color(0xff0000));
-
             for (var tree of this.trees) {
                 this.highlightObjects(tree.mesh.children, new THREE.Color(0x00ffff));
             }

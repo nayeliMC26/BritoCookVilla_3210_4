@@ -260,6 +260,7 @@ class Terrain {
         return block ? block[1] : 0;
     }
 
+    /**Updates the height of that location after a vloc was removed */
     updateHeight(x, z) {
         // Find the block in the topBlocks array that matches the (x, z) coordinates
         const block = this.topBlocks.find(
@@ -274,17 +275,6 @@ class Terrain {
                 Math.abs(blockX - x) < this.blockSize / 2 &&
                 Math.abs(blockZ - z) < this.blockSize / 2
         )[1] = block ? block[1] - this.blockSize : 0;
-    }
-
-    update() {
-        this.stoneMesh.castShadow = true;
-        this.stoneMesh.receiveShadow = true;
-
-        this.dirtMesh.castShadow = true;
-        this.dirtMesh.receiveShadow = true;
-
-        this.grassMesh.castShadow = true;
-        this.grassMesh.receiveShadow = true;
     }
 }
 

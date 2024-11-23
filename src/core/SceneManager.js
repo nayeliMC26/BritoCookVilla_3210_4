@@ -52,7 +52,7 @@ class SceneManager {
                 size: 3000,
                 blockSize: 10,
                 maxHeight: 10,
-                resolution: 20,
+                resolution: 100,
             });
             this.terrain.addToScene(this.scene);
 
@@ -114,8 +114,8 @@ class SceneManager {
 
         for (let treeType of treeTypes) {
             let count = 0;
-            while (count < 1) {
-                // Generate 10 trees per type
+            while (count < 20) {
+                // Generate 20 trees per type
                 const randomIndex = Math.floor(
                     Math.random() * blockArray.length
                 );
