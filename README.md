@@ -24,7 +24,9 @@ Finally, run
 
 'D': Walk right
 
-'F': Toggle flashlight
+'E': Equip the flashlight
+
+'F': Toggle flashlight on and off
 
 'ESC': Toggle pause menu
 
@@ -32,6 +34,8 @@ Finally, run
 [Snowflake Animation](https://github.com/boytchev/etudes/blob/master/threejs/snowing.html)
 
 ### Textures
+Free to use from Mojang, samples from older versions of Minecraft.
+[Mojang Bedrock Samples](https://github.com/Mojang/bedrock-samples)
 
 ### Sounds
 
