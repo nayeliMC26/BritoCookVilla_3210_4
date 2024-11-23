@@ -68,6 +68,7 @@ class Raycaster {
         const matrix = new THREE.Matrix4()
         mesh.getMatrixAt(id, matrix)
         if (matrix.elements[13] > 0) {
+            this.terrain.updateHeight(matrix.elements[12], matrix.elements[14]);
             matrix.makeTranslation(0, 0, 0);
             mesh.setMatrixAt(id, matrix);
             mesh.instanceMatrix.needsUpdate = true;

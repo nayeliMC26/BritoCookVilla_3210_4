@@ -260,7 +260,23 @@ class Terrain {
         return block ? block[1] : 0;
     }
 
-    update(){
+    updateHeight(x, z) {
+        // Find the block in the topBlocks array that matches the (x, z) coordinates
+        const block = this.topBlocks.find(
+            ([blockX, blockY, blockZ]) =>
+                Math.abs(blockX - x) < this.blockSize / 2 &&
+                Math.abs(blockZ - z) < this.blockSize / 2
+        );
+
+        // If a block is found, it will lower the height by one block
+        this.topBlocks.find(
+            ([blockX, blockY, blockZ]) =>
+                Math.abs(blockX - x) < this.blockSize / 2 &&
+                Math.abs(blockZ - z) < this.blockSize / 2
+        )[1] = block ? block[1] - this.blockSize : 0;
+    }
+
+    update() {
         this.stoneMesh.castShadow = true;
         this.stoneMesh.receiveShadow = true;
 
