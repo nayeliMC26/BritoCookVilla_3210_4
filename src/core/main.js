@@ -11,23 +11,25 @@ class Main {
         // Initialize Stats for performance monitoring
         this.stats = new Stats();
         document.body.appendChild(this.stats.dom);
-        
+
         // Initialize clock for delta time
         this.clock = new THREE.Clock();
 
         this.animate = this.animate.bind(this);
         this.animate();
     }
+
     // Animation loop
-    animate(time) {
-        // this.stats.begin();
-        this.sceneManager.update(time / 1000);
+    animate() {
+        const deltaTime = this.clock.getDelta();
+
+        this.sceneManager.update(deltaTime);
 
         this.sceneManager.renderer.render(this.sceneManager.scene, this.sceneManager.camera);
 
         this.stats.update();
-        requestAnimationFrame(this.animate);
 
+        requestAnimationFrame(this.animate);
     }
 }
 

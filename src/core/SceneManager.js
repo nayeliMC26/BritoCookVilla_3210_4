@@ -7,6 +7,7 @@ import Player from '../entities/Player.js';
 import Tree from '../entities/Tree.js';
 import Raycaster from '../core/Raycaster.js'
 
+
 /* Class to handle creating the scene and updating it */
 class SceneManager {
     constructor() {
@@ -43,7 +44,9 @@ class SceneManager {
         this.moon = new Moon(this.scene, this.colorAmbientLight);
         this.mouse = new THREE.Vector2(1, 1);
 
-        // Create the terrain using a timeout method to not stall loading 
+        this.boundingBoxes = [];
+
+        // Create the terrain using a timeout method to not stall loading
         setTimeout(() => {
             this.terrain = new Terrain({
                 size: 3000,
@@ -59,8 +62,6 @@ class SceneManager {
             const width = this.terrain.blockSize * this.terrain.resolution
             this.sky = new Sky(this.scene, this.renderer, this.sun.getDayLength() * 2, width);
 
-            // console.log(this.terrain.blockSize * this.terrain.resolution)
-
             this.addTrees();
             this.raycaster = new Raycaster(this.scene, this.camera, this.terrain, this.trees, this.mouse, this.player);
         }, 100); // Delay terrain generation by 100ms to avoid blocking initial scene load
@@ -68,6 +69,7 @@ class SceneManager {
         this.trees = [];
 
         // Handle window resizing
+
         window.addEventListener('resize', this.onWindowResize.bind(this), false);
         document.addEventListener('mousemove', this.onMouseMove.bind(this), false);
     }
@@ -80,6 +82,7 @@ class SceneManager {
         this.camera.updateProjectionMatrix(); // Update projection matrix
         this.renderer.setSize(window.innerWidth, window.innerHeight); // Update renderer size
     }
+
 
     onMouseMove(event) {
         event.preventDefault();
@@ -113,11 +116,18 @@ class SceneManager {
             let count = 0;
             while (count < 20) {
                 // Generate 10 trees per type
-                const randomIndex = Math.floor(Math.random() * blockArray.length);
+                const randomIndex = Math.floor(
+                    Math.random() * blockArray.length
+                );
                 const [x, y, z] = blockArray[randomIndex];
 
                 // Ensure the tree is placed only on blocks with an exposed top
-                if (isPositionInArray([x, y, z], topBlocks) && !this.treeLocation.includes([x, y, z]) && y != 0 && y != 10) {
+                if (
+                    isPositionInArray([x, y, z], topBlocks) &&
+                    !this.treeLocation.includes([x, y, z]) &&
+                    y != 0 &&
+                    y != 10
+                ) {
                     if (treeType < 3) {
                         this.tree = new Tree(
                             new THREE.Vector3(x, y, z),
@@ -125,7 +135,8 @@ class SceneManager {
                             2, // Number of iterations
                             Math.PI / 2, // Angle for branching
                             treeType, // Grammar type
-                            true
+                            true,
+                            this.boundingBoxes
                         );
                         this.treeLocation.push([x, y, z]);
                         this.tree.addToScene(this.scene);
@@ -136,7 +147,9 @@ class SceneManager {
                             this.terrain.blockSize,
                             2, // Number of iterations
                             Math.PI / 2, // Angle for branching
-                            treeType // Grammar type
+                            treeType, // Grammar type
+                            false,
+                            this.boundingBoxes
                         );
                         this.treeLocation.push([x, y, z]);
                         this.tree.addToScene(this.scene);
@@ -152,7 +165,7 @@ class SceneManager {
 
     /**
      * Function to update the scene
-     * @param {number} deltaTime 
+     * @param {number} deltaTime
      */
     update(deltaTime) {
         // Player is only added to the scene once the terrain is added
@@ -160,9 +173,10 @@ class SceneManager {
             // Update sun and moon positions
             this.sun.animate(deltaTime);
             this.moon.animate(deltaTime);
+            this.player.update(deltaTime, this.boundingBoxes);
             this.sky.animate(deltaTime);
-            this.player.update(deltaTime);
             this.raycaster.update()
+
         }
 
     }
@@ -175,24 +189,24 @@ class SceneManager {
     }
 
     /**
-     * A function which adds a simple snowflake crosshair to the screen 
+     * A function which adds a simple snowflake crosshair to the screen
      * Credit to rawpixel.com on Freepik
      * https://www.freepik.com/free-vector/set-snowflakes-christmas-design-vector_3529750.htm#fromView=search&page=1&position=0&uuid=b99359d7-97af-41a7-9335-6be69daef9b5
      */
     addCrosshair() {
         // Create a div for the crosshair
-        var crosshair = document.createElement('div');
-        crosshair.style.position = 'absolute';
-        crosshair.style.top = '50%';
-        crosshair.style.left = '50%';
-        crosshair.style.transform = 'translate(-50%, -50%)';
-        crosshair.style.width = '25px';
-        crosshair.style.height = '25px';
-        crosshair.style.backgroundImage = 'url(./assets/textures/Snowflake_Sprite.png)';
-        crosshair.style.backgroundSize = 'contain';
-        crosshair.style.backgroundRepeat = 'no-repeat';
-        crosshair.style.pointerEvents = 'none';
-
+        var crosshair = document.createElement("div");
+        crosshair.style.position = "absolute";
+        crosshair.style.top = "50%";
+        crosshair.style.left = "50%";
+        crosshair.style.transform = "translate(-50%, -50%)";
+        crosshair.style.width = "25px";
+        crosshair.style.height = "25px";
+        crosshair.style.backgroundImage =
+            "url(./assets/textures/Snowflake_Sprite.png)";
+        crosshair.style.backgroundSize = "contain";
+        crosshair.style.backgroundRepeat = "no-repeat";
+        crosshair.style.pointerEvents = "none";
         document.body.appendChild(crosshair);
     }
 }
