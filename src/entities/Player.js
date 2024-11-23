@@ -72,7 +72,7 @@ class Player {
         this.playerMesh.position.copy(this.position);
 
         this.controls = new PointerLockControls(this.camera, document.body);
-        this.scene.add(this.controls.object);
+        this.scene.add(this.camera); // Add the camera directly to the scene
 
         this.moveForward = false;
         this.moveBackward = false;
@@ -87,7 +87,7 @@ class Player {
         this.previousPosition = this.position.clone(); // Store previous position for collision resolution
 
         this.keyboardControls();
-
+      
         // Calculate terrain dimensions
         var terrainWidth = this.terrain.resolution * this.terrain.blockSize;
         var terrainHeight = this.terrain.maxHeight * this.terrain.blockSize;
@@ -100,22 +100,17 @@ class Player {
         );
 
         var maxCorner = new THREE.Vector3(
-            terrainWidth / 2,
+            terrainWidth / 2 - 10,
             terrainHeight,
-            terrainWidth / 2
+            terrainWidth / 2 - 10
         );
 
         this.wallBoundingBox = new THREE.Box3(minCorner, maxCorner);
 
-        // Visualize the bounding box for debugging
-        this.boundingBoxHelper = new THREE.Box3Helper(
-            this.wallBoundingBox,
-            0xff0000
-        );
-        //this.scene.add(this.boundingBoxHelper);
-
         this.createFlashlight();
+        this.keyboardControls();
     }
+
     createFlashlight() {
         var flashlightMesh = new THREE.Group();
         this.flashlightMesh = flashlightMesh;
@@ -184,13 +179,19 @@ class Player {
                     this.debugMode = !this.debugMode;
                     break;
                 case "KeyF":
+                    console.log("Toggle flashlight"); // Debug log
                     if (this.flashlightMesh.visible) {
                         this.illumination.visible = !this.illumination.visible;
+                        console.log(
+                            "Flashlight visibility:",
+                            this.illumination.visible
+                        );
                     }
                     break;
                 case "KeyE":
                     for (var mesh of this.camera.children) {
                         mesh.visible = !mesh.visible;
+                        console.log(mesh.visible);
                     }
                     this.illumination.visible = false;
                     break;
@@ -323,6 +324,9 @@ class Player {
 
         // Update player mesh position
         this.playerMesh.position.copy(this.position);
+
+        // Sync player mesh rotation with the camera's rotation
+        this.playerMesh.rotation.y = -this.camera.rotation.z;
 
         if (this.debugMode) {
             this.camera.position.set(
