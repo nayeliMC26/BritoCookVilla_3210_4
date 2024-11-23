@@ -5,6 +5,7 @@ import Moon from "../entities/Moon.js";
 import Terrain from "../world/Terrain.js";
 import Player from "../entities/Player.js";
 import Tree from "../entities/Tree.js";
+import Sky from "../world/Sky.js";
 
 /* Class to handle creating the scene and updating it */
 class SceneManager {

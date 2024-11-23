@@ -7,7 +7,7 @@ class Player {
         this.camera = camera;
         this.terrain = terrain;
         this.height = 15;
-        this.speed = 30;
+        this.speed = 15;
         this.velocity = new THREE.Vector3();
 
         this.bobCounter = 0;
@@ -87,11 +87,12 @@ class Player {
         this.keyboardControls();
         this.createFlashlight();
     }
-    createFlashlight(){
+    createFlashlight() {
         var flashlightMesh = new THREE.Group();
+        this.flashlightMesh = flashlightMesh;
         var flashlightBodyGeometry = new THREE.BoxGeometry(1.5, 4, 1.5);
         var flashlightHeadGeometry = new THREE.BoxGeometry(2, 1, 2);
-        var flashlightMaterial = new THREE.MeshPhongMaterial({color: 0x404040})
+        var flashlightMaterial = new THREE.MeshPhongMaterial({ color: 0x404040 })
 
         var flashlightHead = new THREE.Mesh(flashlightHeadGeometry, flashlightMaterial);
         flashlightHead.position.set(5, -3, -7);
@@ -107,9 +108,14 @@ class Player {
 
         this.illumination = new THREE.SpotLight(0xfff4bd, 10000, 1000, Math.PI / 6, 0.5, 2);
         this.camera.add(this.illumination);
-        this.camera.add(this.illumination.target); 
-        this.illumination.position.set(0, 0, 0); 
-        this.illumination.target.position.set(0, 0, -1); 
+        this.camera.add(this.illumination.target);
+        this.illumination.position.set(0, 0, 0);
+        this.illumination.target.position.set(0, 0, -1);
+        this.illumination.visible = false;
+
+        for (var mesh of this.camera.children) {
+            mesh.visible = false;
+        }
 
     }
 
@@ -135,7 +141,14 @@ class Player {
                     this.debugMode = !this.debugMode;
                     break;
                 case "KeyF":
-                    this.illumination.visible = !this.illumination.visible; 
+                    if (this.flashlightMesh.visible) {
+                        this.illumination.visible = !this.illumination.visible;
+                    }
+                    break;
+                case "KeyE":
+                    for (var mesh of this.camera.children) {
+                        mesh.visible = !mesh.visible;
+                    }
                     break;
             }
         });
@@ -183,11 +196,7 @@ class Player {
 
     update(deltaTime, boundingBoxes) {
 
-        const deltaTime = time - this.time;
-        this.time = time;
-
-
-        const moveSpeed = this.speed * deltaTime;
+        const moveSpeed = this.speed * (deltaTime / 60);
         this.velocity.set(0, 0, 0);
 
         // Calculate movement direction
