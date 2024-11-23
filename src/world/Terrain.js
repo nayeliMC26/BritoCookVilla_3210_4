@@ -259,6 +259,17 @@ class Terrain {
         // If a block is found, return its height (y value), otherwise return 0
         return block ? block[1] : 0;
     }
+
+    update(){
+        this.stoneMesh.castShadow = true;
+        this.stoneMesh.receiveShadow = true;
+
+        this.dirtMesh.castShadow = true;
+        this.dirtMesh.receiveShadow = true;
+
+        this.grassMesh.castShadow = true;
+        this.grassMesh.receiveShadow = true;
+    }
 }
 
 export default Terrain;

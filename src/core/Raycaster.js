@@ -16,6 +16,7 @@ class Raycaster {
             mesh: null,
             instanceId: null,
         };
+        this.mouseControls();
     }
 
     /**
@@ -25,19 +26,21 @@ class Raycaster {
      */
     highlightObjects(objects, highlightColor) {
         for (var mesh of objects) {
+            this.mesh = mesh;
             var intersection = this.raycaster.intersectObject(mesh);
             if (intersection.length > 0) {
-                var instanceId = intersection[0].instanceId;
-                if (instanceId !== undefined) {
-                    if (this.currentHighlight.mesh !== mesh || this.currentHighlight.instanceId !== instanceId) {
+                this.instanceId = intersection[0].instanceId;
+                if (this.instanceId !== undefined) {
+                    if (this.currentHighlight.mesh !== mesh || this.currentHighlight.instanceId !== this.instanceId) {
                         this.resetHighlight();
-                        mesh.setColorAt(instanceId, highlightColor);
+                        mesh.setColorAt(this.instanceId, highlightColor);
                         mesh.instanceColor.needsUpdate = true;
                         this.currentHighlight.mesh = mesh;
-                        this.currentHighlight.instanceId = instanceId;
+                        this.currentHighlight.instanceId = this.instanceId;
                     }
                 }
             } else if (this.currentHighlight.mesh === mesh) {
+
                 this.resetHighlight();
             }
         }
@@ -51,9 +54,18 @@ class Raycaster {
             var defaultColor = new THREE.Color();
             this.currentHighlight.mesh.setColorAt(this.currentHighlight.instanceId, defaultColor);
             this.currentHighlight.mesh.instanceColor.needsUpdate = true;
+            this.currentHighlight.mesh.geometry.dispose();
 
             this.currentHighlight.mesh = null;
             this.currentHighlight.instanceId = null;
+        }
+    }
+
+    removeObject() {
+        if (this.currentHighlight.mesh && this.currentHighlight.instanceId !== null) {
+            const matrix = new THREE.Matrix4().makeTranslation(0, 0, 0);
+            this.currentHighlight.mesh.setMatrixAt(this.currentHighlight.instanceId, matrix);
+            this.currentHighlight.mesh.instanceMatrix.needsUpdate = true;
         }
     }
 
@@ -63,12 +75,20 @@ class Raycaster {
     update() {
         if (this.controls.isLocked) {
             this.raycaster.set(this.camera.position, this.camera.getWorldDirection(new THREE.Vector3()));
-
             this.highlightObjects(this.terrain.mesh.children, new THREE.Color(0xff0000));
+
             for (var tree of this.trees) {
                 this.highlightObjects(tree.mesh.children, new THREE.Color(0x00ffff));
             }
         }
+    }
+
+    mouseControls() {
+        document.body.addEventListener("click", () => {
+            if (this.controls.isLocked) {
+                this.removeObject()
+            }
+        });
     }
 
 }
