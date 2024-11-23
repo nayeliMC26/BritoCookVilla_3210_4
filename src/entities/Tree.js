@@ -62,6 +62,9 @@ class Tree {
 
         this.trunkMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
         this.leafMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        this.mesh = new THREE.Group();
+        this.mesh.add(this.trunkMesh);
+        this.mesh.add(this.leafMesh);
 
         this.generateTree();
     }
@@ -212,8 +215,7 @@ class Tree {
      * Add tree mesh to the scene
      */
     addToScene(scene) {
-        scene.add(this.trunkMesh);
-        scene.add(this.leafMesh);
+        scene.add(this.mesh);
     }
 }
 

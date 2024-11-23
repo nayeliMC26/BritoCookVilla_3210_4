@@ -44,6 +44,12 @@ class Terrain {
         this.dirtMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
         this.grassMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
+        // Create a group to hold all instanced meshes
+        this.mesh = new THREE.Group();
+        this.mesh.add(this.stoneMesh);
+        this.mesh.add(this.dirtMesh);
+        this.mesh.add(this.grassMesh);
+
         this.initTerrain();
     }
 
@@ -109,11 +115,6 @@ class Terrain {
         this.dirtMesh.instanceMatrix.needsUpdate = true;
         this.grassMesh.instanceMatrix.needsUpdate = true;
 
-        // Create a group to hold all instanced meshes
-        this.mesh = new THREE.Group();
-        this.mesh.add(this.stoneMesh);
-        this.mesh.add(this.dirtMesh);
-        this.mesh.add(this.grassMesh);
 
         // Add LOD system
         this.addLOD();
@@ -231,7 +232,7 @@ class Terrain {
      */
     addToScene(scene) {
         // Add fog to the scene for better depth
-        scene.fog = new THREE.Fog(0xa0a0a0, 250, 1000); // Set fog near and far distances
+        scene.fog = new THREE.Fog(0xa0a0a0, 250, 500); // Set fog near and far distances
 
         // Enable frustum culling for all meshes
         this.stoneMesh.frustumCulled = true;
@@ -257,6 +258,23 @@ class Terrain {
 
         // If a block is found, return its height (y value), otherwise return 0
         return block ? block[1] : 0;
+    }
+
+    /**Updates the height of that location after a vloc was removed */
+    updateHeight(x, z) {
+        // Find the block in the topBlocks array that matches the (x, z) coordinates
+        const block = this.topBlocks.find(
+            ([blockX, blockY, blockZ]) =>
+                Math.abs(blockX - x) < this.blockSize / 2 &&
+                Math.abs(blockZ - z) < this.blockSize / 2
+        );
+
+        // If a block is found, it will lower the height by one block
+        this.topBlocks.find(
+            ([blockX, blockY, blockZ]) =>
+                Math.abs(blockX - x) < this.blockSize / 2 &&
+                Math.abs(blockZ - z) < this.blockSize / 2
+        )[1] = block ? block[1] - this.blockSize : 0;
     }
 }
 

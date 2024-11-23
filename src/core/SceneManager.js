@@ -1,11 +1,12 @@
+import * as THREE from 'three';
+import Sun from '../entities/Sun.js';
+import Moon from '../entities/Moon.js';
+import Sky from '../world/Sky.js';
+import Terrain from '../world/Terrain.js';
+import Player from '../entities/Player.js';
+import Tree from '../entities/Tree.js';
+import Raycaster from '../core/Raycaster.js'
 
-import * as THREE from "three";
-import Sun from "../entities/Sun.js";
-import Moon from "../entities/Moon.js";
-import Terrain from "../world/Terrain.js";
-import Player from "../entities/Player.js";
-import Tree from "../entities/Tree.js";
-import Sky from "../world/Sky.js";
 
 /* Class to handle creating the scene and updating it */
 class SceneManager {
@@ -41,6 +42,7 @@ class SceneManager {
         // Sun and Moon objects / lighting
         this.sun = new Sun(this.scene, this.colorAmbientLight);
         this.moon = new Moon(this.scene, this.colorAmbientLight);
+        this.mouse = new THREE.Vector2(1, 1);
 
         this.boundingBoxes = [];
 
@@ -61,15 +63,15 @@ class SceneManager {
             this.sky = new Sky(this.scene, this.renderer, this.sun.getDayLength() * 2, width);
 
             this.addTrees();
+            this.raycaster = new Raycaster(this.scene, this.camera, this.terrain, this.trees, this.mouse, this.player);
         }, 100); // Delay terrain generation by 100ms to avoid blocking initial scene load
 
+        this.trees = [];
 
         // Handle window resizing
-        window.addEventListener(
-            "resize",
-            this.onWindowResize.bind(this),
-            false
-        );
+
+        window.addEventListener('resize', this.onWindowResize.bind(this), false);
+        document.addEventListener('mousemove', this.onMouseMove.bind(this), false);
     }
 
     /**
@@ -79,6 +81,13 @@ class SceneManager {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix(); // Update projection matrix
         this.renderer.setSize(window.innerWidth, window.innerHeight); // Update renderer size
+    }
+
+
+    onMouseMove(event) {
+        event.preventDefault();
+        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
     }
 
     /**
@@ -106,7 +115,7 @@ class SceneManager {
         for (let treeType of treeTypes) {
             let count = 0;
             while (count < 20) {
-                // Generate 10 trees per type
+                // Generate 20 trees per type
                 const randomIndex = Math.floor(
                     Math.random() * blockArray.length
                 );
@@ -120,7 +129,7 @@ class SceneManager {
                     y != 10
                 ) {
                     if (treeType < 3) {
-                        const tree = new Tree(
+                        this.tree = new Tree(
                             new THREE.Vector3(x, y, z),
                             this.terrain.blockSize,
                             2, // Number of iterations
@@ -130,9 +139,10 @@ class SceneManager {
                             this.boundingBoxes
                         );
                         this.treeLocation.push([x, y, z]);
-                        tree.addToScene(this.scene);
+                        this.tree.addToScene(this.scene);
+                        this.trees.push(this.tree);
                     } else {
-                        const tree = new Tree(
+                        this.tree = new Tree(
                             new THREE.Vector3(x, y, z),
                             this.terrain.blockSize,
                             2, // Number of iterations
@@ -142,7 +152,8 @@ class SceneManager {
                             this.boundingBoxes
                         );
                         this.treeLocation.push([x, y, z]);
-                        tree.addToScene(this.scene);
+                        this.tree.addToScene(this.scene);
+                        this.trees.push(this.tree);
                     }
 
                     count++;
@@ -164,6 +175,7 @@ class SceneManager {
             this.moon.animate(deltaTime);
             this.player.update(deltaTime, this.boundingBoxes);
             this.sky.animate(deltaTime);
+            this.raycaster.update()
 
         }
 
