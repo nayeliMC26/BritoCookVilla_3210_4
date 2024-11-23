@@ -86,8 +86,6 @@ class Player {
         this.playerBoundingBox = new THREE.Box3(); // Bounding box for the player
         this.previousPosition = this.position.clone(); // Store previous position for collision resolution
 
-        this.keyboardControls();
-      
         // Calculate terrain dimensions
         var terrainWidth = this.terrain.resolution * this.terrain.blockSize;
         var terrainHeight = this.terrain.maxHeight * this.terrain.blockSize;
