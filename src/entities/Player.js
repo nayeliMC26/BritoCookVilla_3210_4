@@ -92,11 +92,11 @@ class Player {
         var flashlightMaterial = new THREE.MeshPhongMaterial({color: 0x404040})
 
         var flashlightHead = new THREE.Mesh(flashlightHeadGeometry, flashlightMaterial);
-        flashlightHead.position.set(5, -2, -7);
+        flashlightHead.position.set(5, -3, -7);
         flashlightHead.rotation.set(0, Math.PI / 2, Math.PI / 2);
 
         var flashlightBody = new THREE.Mesh(flashlightBodyGeometry, flashlightMaterial);
-        flashlightBody.position.set(5, -2, -5);
+        flashlightBody.position.set(5, -3, -5);
         flashlightBody.rotation.set(0, Math.PI / 2, Math.PI / 2);
 
         flashlightMesh.add(flashlightHead);
@@ -256,7 +256,7 @@ class Player {
             this.bobCounter++;
             this.camera.position.set(
                 this.position.x,
-                this.position.y + this.height / 2 + (Math.sin(this.bobCounter / 2)),
+                this.position.y + this.height / 2 + (Math.sin(this.bobCounter / 6)),
                 this.position.z
             );
         } else {
