@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import ColorMerger from '../utils/ColorMerger';
 
 export default class Sky {
 
@@ -20,8 +21,9 @@ export default class Sky {
             { r: 0, g: 0, b: 0.015 } // Dark Blue
         ];
         this.color = new THREE.Color(1, 1, 1);
+        this.colorMerger = new ColorMerger();
         // The amount of snowflakes 
-        this.snowFlakeAmount = 1000;
+        this.snowFlakeAmount = 2500;
         this.snowflakeTextures = [
             './textures/snowflake1.png',
             './textures/snowflake2.png',
@@ -37,74 +39,51 @@ export default class Sky {
     }
 
     #initSnow() {
-        // Getting random x, y, z in [-this.radius, this.radius] 
-        var textureLoader = new THREE.TextureLoader();
-        var textures = this.snowflakeTextures.map(texturePath => textureLoader.load(texturePath));
-
-        // Array to store snowflakes (each one will be a THREE.Points object)
-        this.snowflakes = [];
-
-        for (let i = 0; i < this.snowFlakeAmount; i++) {
-            // Randomly pick a texture for each snowflake
-            var texture = textures[Math.floor(Math.random() * textures.length)];
-            texture.minFilter = THREE.LinearMipMapLinearFilter;
-            texture.magFilter = THREE.LinearFilter;
-
-            // Create random x, y, z positions for each snowflake
+        // Getting random x, y, z in [-(this.width / 2), (this.width / 2)] 
+        var vertices = [];
+        for (var i = 0; i < this.snowFlakeAmount; i++) {
             const x = (Math.random() - 0.5) * this.width;
             const y = (Math.random() - 0.5) * this.width;
             const z = (Math.random() - 0.5) * this.width;
-
-            // One bufferGeometry for better performace
-            var geometry = new THREE.BufferGeometry();
-            var positions = new Float32Array([x, y, z]);
-            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-
-            // Snow textured point material
-            var material = new THREE.PointsMaterial({
-                color: 0xffffff,
-                size: 4,
-                map: texture,
-                transparent: true,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false,
-                opacity: 0.8
-            });
-
-            // Create a Points object for each snowflake and add it to the scene
-            var points = new THREE.Points(geometry, material);
-            this.snowflakes.push(points);
-            this.scene.add(points);
+            vertices.push(x, y, z);
         }
+        // One bufferGeometry for better performace
+        this.snowflakes = new THREE.BufferGeometry();
+        this.snowflakes.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        // Snow textured point material
+        var material = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 2.5,
+            transparent: true,
+            depthWrite: false,
+            // Random texture from a set of textures
+            map: new THREE.TextureLoader().load(this.snowflakeTextures[Math.floor(Math.random() * this.snowflakeTextures.length)]),
+        });
+        this.snow = new THREE.Points(this.snowflakes, material);
+        this.scene.add(this.snow);
+
     }
 
     #updateColor() {
         var currP;
-        switch (true) {
-            case (this.percentage <= 0.075):
-                currP = this.percentage / 0.075;
-                this.#colorChange(this.palette[0], this.palette[1], currP);
-                break;
-            case (this.percentage > 0.425 && this.percentage <= 0.475):
-                currP = (this.percentage - 0.425) / 0.05;
-                this.#colorChange(this.palette[1], this.palette[2], currP);
-                break;
-            case (this.percentage > 0.475 && this.percentage <= 0.5):
-                currP = (this.percentage - 0.475) / 0.025;
-                this.#colorChange(this.palette[2], this.palette[3], currP);
-                break;
-            case (this.percentage > 0.5 && this.percentage <= 0.55):
-                currP = (this.percentage - 0.5) / 0.05;
-                this.#colorChange(this.palette[3], this.palette[4], currP);
-                break;
-            case (this.percentage > 0.95 && this.percentage <= 0.975):
-                currP = (this.percentage - 0.95) / 0.025;
-                this.#colorChange(this.palette[4], this.palette[2], currP);
-                break;
-            case (this.percentage > 0.975 && this.percentage <= 1):
-                currP = (this.percentage - 0.975) / 0.025;
-                this.#colorChange(this.palette[2], this.palette[0], currP);
-                break;
+        if (this.percentage <= 0.075) {
+            currP = this.percentage / 0.075;
+            this.color = this.colorMerger.colorChange(this.palette[0], this.palette[1], currP);
+        } else if (this.percentage > 0.425 && this.percentage <= 0.475) {
+            currP = (this.percentage - 0.425) / 0.05;
+            this.color = this.colorMerger.colorChange(this.palette[1], this.palette[2], currP);
+        } else if (this.percentage > 0.475 && this.percentage <= 0.5) {
+            currP = (this.percentage - 0.475) / 0.025;
+            this.color = this.colorMerger.colorChange(this.palette[2], this.palette[3], currP);
+        } else if (this.percentage > 0.5 && this.percentage <= 0.55) {
+            currP = (this.percentage - 0.5) / 0.05;
+            this.color = this.colorMerger.colorChange(this.palette[3], this.palette[4], currP);
+        } else if (this.percentage > 0.95 && this.percentage <= 0.975) {
+            currP = (this.percentage - 0.95) / 0.025;
+            this.color = this.colorMerger.colorChange(this.palette[4], this.palette[2], currP);
+        } else if (this.percentage > 0.975 && this.percentage <= 1) {
+            currP = (this.percentage - 0.975) / 0.025;
+            this.color = this.colorMerger.colorChange(this.palette[2], this.palette[0], currP);
         }
         this.renderer.setClearColor(this.color);
     }
@@ -121,33 +100,32 @@ export default class Sky {
         this.color.b = oldCol.b + ((newCol.b - oldCol.b) * percentage);
     }
 
-    animate(deltaTime) {
-        if (isNaN(deltaTime)) return;
-        // Percentage of time passed for a full "24-hour" cycle
-        this.percentage = (this.percentage + deltaTime / this.time) % 1;
+    animate(time) {
+        if (isNaN(time)) return;
+        // Perctange of time pass for a full "24-hour" cycle
+        this.percentage = (time % this.time) / this.time;
 
         // Snowflake animation adapted from https://github.com/boytchev/etudes/blob/master/threejs/snowing.html
         // List of all vertices
+        const vertices = this.snowflakes.attributes.position.array;
         // Move each snowflake
-        for (var i = 0; i < this.snowflakes.length; i++) {
-            var snowflake = this.snowflakes[i];
-            var positions = snowflake.geometry.attributes.position.array;
+        for (var i = 0; i < this.snowFlakeAmount * 3; i += 3) {
+            // move down a snowflake
+            vertices[i] += 0.2 * Math.sin(i / 30 + time / 40); // X axis
+            vertices[i + 1] -= 0.2 * Math.cos(i / 150 + time / 70) + 0.6; // Y axis
+            vertices[i + 2] += 0.2 * Math.cos(i / 50 + time / 20); // Z axis
 
-            // Move snowflake based on its position and deltaTime
-            positions[1] -= 0.2 * Math.cos((i / 150) + (deltaTime / 70)) + 0.6;
-
-            // Recycle snowflakes that fall below ground
-            if (positions[1] < -50) {
-                positions[0] = (Math.random() - 0.5) * this.width;
-                positions[1] = (Math.random() - 0.5) * this.width;
-                positions[2] = (Math.random() - 0.5) * this.width;
+            // Recycle after it falls under the ground
+            if (vertices[i + 1] < -50) {
+                vertices[i] = (Math.random() - 0.5) * this.width;
+                vertices[i + 1] = ((Math.random()) * (this.width - 250)) + 250;
+                vertices[i + 2] = (Math.random() - 0.5) * this.width;
+                // console.log(vertices[i + 1])
             }
-
-            // Update snowflake position
-            snowflake.geometry.attributes.position.needsUpdate = true;
         }
-
-        // Update sky color
+        // Updating the snowflake location
+        this.snowflakes.getAttribute('position').needsUpdate = true
+        // Updating sky color
         this.#updateColor();
     }
 }

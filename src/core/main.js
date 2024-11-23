@@ -36,18 +36,11 @@ class Main {
     }
 
     // Animation loop
-    animate() {
+    animate(time) {
         const deltaTime = this.clock.getDelta();
-
-        this.sceneManager.update(deltaTime);
-
-        this.sceneManager.renderer.render(
-            this.sceneManager.scene,
-            this.sceneManager.camera
-        );
-
+        this.sceneManager.update(time / 1000, deltaTime);
+        this.sceneManager.renderer.render(this.sceneManager.scene, this.sceneManager.camera);
         this.stats.update();
-
         requestAnimationFrame(this.animate);
     }
 }

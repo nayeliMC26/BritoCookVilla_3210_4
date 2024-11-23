@@ -59,7 +59,7 @@ class SceneManager {
             // Create player and add it to the scene
             this.player = new Player(this.scene, this.camera, this.terrain);
 
-            const width = this.terrain.blockSize * this.terrain.resolution
+            const width = this.terrain.maxHeight * this.terrain.resolution
             this.sky = new Sky(this.scene, this.renderer, this.sun.getDayLength() * 2, width);
 
             this.addTrees();
@@ -167,14 +167,14 @@ class SceneManager {
      * Function to update the scene
      * @param {number} deltaTime
      */
-    update(deltaTime) {
+    update(time, deltaTime) {
         // Player is only added to the scene once the terrain is added
         if (this.player) {
             // Update sun and moon positions
-            this.sun.animate(deltaTime);
-            this.moon.animate(deltaTime);
+            this.sun.animate(time);
+            this.moon.animate(time);
             this.player.update(deltaTime, this.boundingBoxes);
-            this.sky.animate(deltaTime);
+            this.sky.animate(time);
             this.raycaster.update()
 
         }
