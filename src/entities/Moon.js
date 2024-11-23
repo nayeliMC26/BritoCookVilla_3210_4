@@ -4,7 +4,7 @@ export default class Moon {
 
     constructor(scene, light) {
         this.scene = scene;
-        // Ambinet light
+        // Ambient light
         this.ambientLight = light;
         // Parameters for moon geometry
         this.radius, this.geometry, this.material, this.mesh, this.color;
@@ -12,8 +12,8 @@ export default class Moon {
         this.moonRise, this.moonSet, this.currentA;
         // How long the night is
         this.time;
-        // Intesity of ambient light
-        this.intesity;
+        // Intensity of ambient light
+        this.intensity;
         // Percentage of night time
         this.percentage;
         // Making moon
@@ -26,13 +26,13 @@ export default class Moon {
         this.geometry = new THREE.BoxGeometry(this.radius * 2, this.radius * 2, this.radius * 2);
         this.material = new THREE.MeshBasicMaterial({ color: 0xF1EB99, fog: false });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-        // Positionning the moon
+        // Positioning the moon
         this.mesh.position.set(2500, 0, 0);
         // Rotating it so that it starts below the horizon
         this.moonRise = Math.asin(-this.radius / (this.mesh.position.x - 10)); // Starting angle
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(this.moonRise);
         this.mesh.applyMatrix4(rotationMatrix);
-        // Total angles traveled form the beginning to end
+        // Total angles traveled from the beginning to end
         this.moonSet = Math.atan2(this.mesh.position.y, -this.mesh.position.x) - this.moonRise + (2 * Math.PI);
         // Rotating it to the end
         rotationMatrix.makeRotationZ(this.moonSet);
@@ -40,14 +40,14 @@ export default class Moon {
         this.currentA = this.moonSet;
         this.percentage = 1;
         // How much a rotation should take for 15 degrees every 10 seconds
-        this.time = (this.moonSet / 0.261799) * 10
+        this.time = (this.moonSet / 0.261799) * 10;
 
         // Starting with the moon light as purple
         this.color = new THREE.Color(0.416, 0.051, 0.514);
-        // Max ambient light intesity
-        this.intesity = this.ambientLight.intensity / 2;
-        // Moon light (half intensity to not overide ambinet light)
-        this.directionalLight = new THREE.DirectionalLight(this.color, this.intesity / 2);
+        // Max ambient light intensity
+        this.intensity = this.ambientLight.intensity / 2;
+        // Moon light  (half intensity to not override ambient light)
+        this.directionalLight = new THREE.DirectionalLight(this.color, this.intensity / 2);
         this.directionalLight.castShadow = true;
         this.directionalLight.shadow.mapSize.width = 2048; // Higher values = better shadow quality
         this.directionalLight.shadow.mapSize.height = 2048;
@@ -58,7 +58,7 @@ export default class Moon {
         this.directionalLight.shadow.camera.top = 500;
         this.directionalLight.shadow.camera.bottom = -500;
         // Binding the light to the moon
-        this.mesh.add(this.directionalLight)
+        this.mesh.add(this.directionalLight);
 
         // Adding moon to the scene
         this.scene.add(this.mesh);
@@ -71,34 +71,37 @@ export default class Moon {
                 this.color.g = 0.051 + (-0.051 * ((this.percentage - .85) / .15));
                 this.color.b = 0.514 + (-0.514 * ((this.percentage - .85) / .15));
                 break;
-            case (this.percentage > 1): // Reseting color as its under the world
-                const angle = Math.atan2(this.mesh.position.y, this.mesh.position.x) + (2 * Math.PI)
+            case (this.percentage > 1): // Resetting color as its under the world
+                const angle = Math.atan2(this.mesh.position.y, this.mesh.position.x) + (2 * Math.PI);
                 const percentage = (angle - this.moonSet) / ((2 * Math.PI) - this.moonSet);
                 this.color.r = 1 + (-0.584 * percentage);
                 this.color.g = 0.051 * percentage;
                 this.color.b = 0.514 * percentage;
-                break
+                break;
         }
-        // Only change ambient light when its night time
-        if (this.percentage <= 1) this.ambientLight.color.set(this.color);
+        // Only change ambient light when it's night time
+        if (this.percentage <= 1) {
+            this.ambientLight.color.set(this.color);
+        }
         this.directionalLight.color.set(this.color);
     }
 
-    #updateIntensity() {
+    #updateIntensity(deltaTime) {
         switch (true) {
-            case (this.percentage <= .05): // Decresing light for a dark midnight
-                this.ambientLight.intensity = this.intesity - ((this.intesity / 2) * (this.percentage / .05));
+            case (this.percentage <= .05): // Decreasing light for a dark midnight
+                this.ambientLight.intensity = this.intensity - ((this.intensity / 2) * (this.percentage / .05));
                 break;
             case (this.percentage > .95 && this.percentage <= 1): // Increasing the light to prepare for sunrise
-                this.ambientLight.intensity = (this.intesity / 2) + ((this.intesity / 2) * ((this.percentage - .95) / .05));
+                this.ambientLight.intensity = (this.intensity / 2) + ((this.intensity / 2) * ((this.percentage - .95) / .05));
                 break;
         }
     }
 
-    animate(time) {
-        if (isNaN(time)) return;
-        // The angle that were going to rotate the moon by
-        var angle = this.moonRise + ((this.moonSet / this.time) * (time + this.time));
+    animate(deltaTime) {
+        if (isNaN(deltaTime)) return;
+        // The angle that we're going to rotate the moon by
+        var angleChange = (this.moonSet / this.time) * deltaTime;
+        var angle = this.moonRise + angleChange;
         var rotationMatrix = new THREE.Matrix4().makeRotationZ(angle - this.currentA);
         this.percentage = ((angle - this.moonRise) / this.moonSet) % 2;
         // Rotate the moon
@@ -106,6 +109,6 @@ export default class Moon {
         this.currentA = angle;
 
         this.#updateColor();
-        this.#updateIntensity();
+        this.#updateIntensity(deltaTime);
     }
 }

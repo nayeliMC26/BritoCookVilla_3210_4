@@ -6,16 +6,55 @@ class Player {
         this.scene = scene;
         this.camera = camera;
         this.terrain = terrain;
-        this.height = 15;
-        this.speed = 30;
+        this.height = 20;
+        this.speed = 60;
         this.velocity = new THREE.Vector3();
-        const geometry = new THREE.BoxGeometry(
-            this.height / 2,
-            this.height,
-            this.height / 2
-        );
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        this.playerMesh = new THREE.Mesh(geometry, material);
+
+        this.bobCounter = 0;
+
+        this.playerMesh = new THREE.Group();
+
+        const material = new THREE.MeshBasicMaterial({ color: 0x000000, colorWrite: false, depthWrite: false });
+        const geo1 = new THREE.BoxGeometry(5, 5, 5);
+
+        this.mesh1 = new THREE.Mesh(geo1, material);
+        this.mesh1.position.set(0.75 * 5, 0.5 * 5, 0);
+        this.mesh1.scale.set(0.5, 2, 0.5);
+        this.mesh1.castShadow = true;
+        this.playerMesh.add(this.mesh1);
+
+        this.mesh2 = new THREE.Mesh(geo1, material);
+        this.mesh2.position.set(-0.75 * 5, 0.5 * 5, 0);
+        this.mesh2.scale.set(0.5, 2, 0.5);
+        this.mesh2.castShadow = true;
+        this.playerMesh.add(this.mesh2);
+
+        this.mesh3 = new THREE.Mesh(geo1, material);
+        this.mesh3.position.set(0.25 * 5, -1 * 5, 0);
+        this.mesh3.scale.set(0.5, 2, 0.5);
+        this.mesh3.castShadow = true;
+        this.playerMesh.add(this.mesh3);
+
+        this.mesh4 = new THREE.Mesh(geo1, material);
+        this.mesh4.position.set(-0.25 * 5, -1 * 5, 0);
+        this.mesh4.scale.set(0.5, 2, 0.5);
+        this.mesh4.castShadow = true;
+        this.playerMesh.add(this.mesh4);
+
+        this.mesh5 = new THREE.Mesh(geo1, material);
+        this.mesh5.position.set(0, 0.75 * 5, 0);
+        this.mesh5.scale.set(1, 1.5, 0.5);
+        this.mesh5.castShadow = true;
+        this.playerMesh.add(this.mesh5);
+
+        this.mesh6 = new THREE.Mesh(geo1, material);
+        this.mesh6.position.set(0, 2 * 5, 0);
+        this.mesh6.castShadow = true;
+        this.playerMesh.add(this.mesh6);
+
+        this.playerMesh.castShadow = true;
+
+        //this.playerMesh = new THREE.Mesh(geometry, material);
         this.scene.add(this.playerMesh);
 
         this.position = new THREE.Vector3(
@@ -40,9 +79,44 @@ class Player {
         this.debugMode = false;
         this.cameraOffset = new THREE.Vector3(0, 20, -30);
 
+
+        this.playerBoundingBox = new THREE.Box3(); // Bounding box for the player
+        this.previousPosition = this.position.clone(); // Store previous position for collision resolution
         this.time = 0;
 
         this.keyboardControls();
+        this.createFlashlight();
+    }
+    createFlashlight() {
+        var flashlightMesh = new THREE.Group();
+        this.flashlightMesh = flashlightMesh;
+        var flashlightBodyGeometry = new THREE.BoxGeometry(1.5, 4, 1.5);
+        var flashlightHeadGeometry = new THREE.BoxGeometry(2, 1, 2);
+        var flashlightMaterial = new THREE.MeshPhongMaterial({ color: 0x404040 })
+
+        var flashlightHead = new THREE.Mesh(flashlightHeadGeometry, flashlightMaterial);
+        flashlightHead.position.set(5, -3, -7);
+        flashlightHead.rotation.set(0, Math.PI / 2, Math.PI / 2);
+
+        var flashlightBody = new THREE.Mesh(flashlightBodyGeometry, flashlightMaterial);
+        flashlightBody.position.set(5, -3, -5);
+        flashlightBody.rotation.set(0, Math.PI / 2, Math.PI / 2);
+
+        flashlightMesh.add(flashlightHead);
+        flashlightMesh.add(flashlightBody);
+        this.camera.add(flashlightMesh);
+
+        this.illumination = new THREE.SpotLight(0xfff4bd, 10000, 1000, Math.PI / 6, 0.5, 2);
+        this.camera.add(this.illumination);
+        this.camera.add(this.illumination.target);
+        this.illumination.position.set(0, 0, 0);
+        this.illumination.target.position.set(0, 0, -1);
+
+        this.illumination.visible = false;
+        for (var mesh of this.camera.children) {
+            mesh.visible = false;
+        }
+
     }
 
     keyboardControls() {
@@ -65,6 +139,17 @@ class Player {
                     break;
                 case "KeyT":
                     this.debugMode = !this.debugMode;
+                    break;
+                case "KeyF":
+                    if (this.flashlightMesh.visible) {
+                        this.illumination.visible = !this.illumination.visible;
+                    }
+                    break;
+                case "KeyE":
+                    for (var mesh of this.camera.children) {
+                        mesh.visible = !mesh.visible;
+                    }
+                    this.illumination.visible = false;
                     break;
             }
         });
@@ -109,9 +194,8 @@ class Player {
         this.mouseLookEnabled = document.pointerLockElement === document.body;
     }
 
-    update(time) {
-        const deltaTime = time - this.time;
-        this.time = time;
+
+    update(deltaTime, boundingBoxes) {
 
         const moveSpeed = this.speed * deltaTime;
         this.velocity.set(0, 0, 0);
@@ -141,15 +225,37 @@ class Player {
 
         this.velocity.normalize().multiplyScalar(moveSpeed);
 
-        // Update position
-        this.position.add(this.velocity);
+        // Predict the next position
+        const nextPosition = this.position.clone().add(this.velocity);
 
         // Ensure player stays on terrain
-        this.position.y = this.terrain.getHeightAt(
-            this.position.x,
-            this.position.z
-        ) + this.height;
+        nextPosition.y =
+            this.terrain.getHeightAt(nextPosition.x, nextPosition.z) +
+            this.height;
 
+        // Update player bounding box to the predicted position
+        const nextBoundingBox = this.playerBoundingBox.clone();
+        nextBoundingBox.setFromCenterAndSize(
+            new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z),
+            this.playerBoundingBox.getSize(new THREE.Vector3())
+        );
+
+        // Check for collisions
+        let collisionDetected = false;
+        for (const boundingBox of boundingBoxes) {
+            if (nextBoundingBox.intersectsBox(boundingBox)) {
+                collisionDetected = true;
+                break;
+            }
+        }
+
+        // Update position only if no collision is detected
+        if (!collisionDetected) {
+            this.previousPosition.copy(this.position); // Store current position
+            this.position.copy(nextPosition);
+        }
+
+        // Update player mesh position
         this.playerMesh.position.copy(this.position);
 
         if (this.debugMode) {
@@ -159,6 +265,18 @@ class Player {
                 this.position.z + this.cameraOffset.z
             );
             this.camera.lookAt(this.position);
+        } else if (
+            this.moveForward ||
+            this.moveBackward ||
+            this.moveLeft ||
+            this.moveRight
+        ) {
+            this.bobCounter += deltaTime * 10;
+            this.camera.position.set(
+                this.position.x,
+                this.position.y + this.height / 2 + (Math.sin(this.bobCounter * 1)),
+                this.position.z
+            );
         } else {
             this.camera.position.set(
                 this.position.x,
@@ -166,6 +284,10 @@ class Player {
                 this.position.z
             );
         }
+
+        // Update bounding box for rendering/debugging
+        this.playerBoundingBox.setFromObject(this.playerMesh);
+
     }
 }
 
