@@ -271,10 +271,10 @@ class Player {
             this.moveLeft ||
             this.moveRight
         ) {
-            this.bobCounter++;
+            this.bobCounter += deltaTime * 10;
             this.camera.position.set(
                 this.position.x,
-                this.position.y + this.height / 2 + (Math.sin(this.bobCounter / 4)),
+                this.position.y + this.height / 2 + (Math.sin(this.bobCounter * 1)),
                 this.position.z
             );
         } else {
