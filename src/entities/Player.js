@@ -6,8 +6,8 @@ class Player {
         this.scene = scene;
         this.camera = camera;
         this.terrain = terrain;
-        this.height = 15;
-        this.speed = 30;
+        this.height = 20;
+        this.speed = 60;
         this.velocity = new THREE.Vector3();
 
         this.bobCounter = 0;
@@ -111,8 +111,8 @@ class Player {
         this.camera.add(this.illumination.target);
         this.illumination.position.set(0, 0, 0);
         this.illumination.target.position.set(0, 0, -1);
-        this.illumination.visible = false;
 
+        this.illumination.visible = false;
         for (var mesh of this.camera.children) {
             mesh.visible = false;
         }
@@ -149,6 +149,7 @@ class Player {
                     for (var mesh of this.camera.children) {
                         mesh.visible = !mesh.visible;
                     }
+                    this.illumination.visible = false;
                     break;
             }
         });
@@ -273,7 +274,7 @@ class Player {
             this.bobCounter++;
             this.camera.position.set(
                 this.position.x,
-                this.position.y + this.height / 2 + (Math.sin(this.bobCounter / 6)),
+                this.position.y + this.height / 2 + (Math.sin(this.bobCounter / 4)),
                 this.position.z
             );
         } else {
