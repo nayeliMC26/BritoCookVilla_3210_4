@@ -16,6 +16,19 @@ class Main {
         this.clock = new THREE.Clock();
 
         this.animate = this.animate.bind(this);
+
+        const listener = new THREE.AudioListener();
+    
+        const sound = new THREE.Audio(listener);
+        const audioLoader = new THREE.AudioLoader();
+    
+        audioLoader.load('public/assets/music/The Superfools - Christmas with The Superfools.mp3', function(buffer) {
+            sound.setBuffer(buffer);
+            sound.setLoop(true);
+            sound.setVolume(0.5);
+            sound.play();
+        });
+
         this.animate();
     }
 

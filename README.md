@@ -38,6 +38,8 @@ Free to use from Mojang, samples from older versions of Minecraft.
 [Mojang Bedrock Samples](https://github.com/Mojang/bedrock-samples)
 
 ### Sounds
+Free to use music from FMA, non commercial only.
+[Christmas With The Superfools](https://freemusicarchive.org/music/Ergo_Phizmiz_Oblivian_Substanshall_Elvis_Herod_The_Superfools/none_given_1547/04-Christmas-with-the-Superfools/)
 
 ### Models
 
