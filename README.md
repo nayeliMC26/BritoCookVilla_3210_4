@@ -28,8 +28,6 @@ Finally, run
 
 'F': Toggle flashlight on and off
 
-'ESC': Toggle pause menu
-
 ## Resources
 [Snowflake Animation](https://github.com/boytchev/etudes/blob/master/threejs/snowing.html)
 
