@@ -7,7 +7,7 @@ class Player {
         this.camera = camera;
         this.terrain = terrain;
         this.height = 20;
-        this.speed = 60;
+        this.speed = 30;
         this.velocity = new THREE.Vector3();
 
         this.bobCounter = 0;
