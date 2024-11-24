@@ -170,9 +170,6 @@ class Player {
                 case "KeyD":
                     this.moveRight = true;
                     break;
-                case "Space":
-                    if (this.isGrounded) this.isJumping = true;
-                    break;
                 case "KeyT":
                     this.debugMode = !this.debugMode;
                     break;
@@ -209,9 +206,6 @@ class Player {
                     break;
                 case "KeyD":
                     this.moveRight = false;
-                    break;
-                case "Space":
-                    this.isJumping = false;
                     break;
             }
         });

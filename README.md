@@ -28,6 +28,9 @@ Finally, run
 
 'F': Toggle flashlight on and off
 
+'Left-Click': Enable Pointer-Lock
+
+'ESC': Disable Pointer-Lock
 ## Resources
 
 ### Textures
