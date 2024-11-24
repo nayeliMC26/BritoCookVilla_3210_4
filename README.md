@@ -29,7 +29,6 @@ Finally, run
 'F': Toggle flashlight on and off
 
 ## Resources
-[Snowflake Animation](https://github.com/boytchev/etudes/blob/master/threejs/snowing.html)
 
 ### Textures
 Free to use from Mojang, samples from older versions of Minecraft.
@@ -42,9 +41,6 @@ Free snowflake textures for public use. Credit to rawpixel.com on Freepik.
 Free to use music from FMA, non commercial only.
 [Jazz Bells by Dee Yan-Key](https://freemusicarchive.org/music/Dee_Yan-Key/)
 
-### Models
+### Animations
 
-### Fonts
-
- 
-
+[Snowflake Animation](https://github.com/boytchev/etudes/blob/master/threejs/snowing.html)
